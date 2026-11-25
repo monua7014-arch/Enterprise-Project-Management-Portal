@@ -42,13 +42,26 @@ export const Header: React.FC = () => {
       case 'risks': return '5x5 Quantitative Risk Heatmap Matrix';
       case 'financials': return 'EVM Financials & Budget Burn-Down';
       case 'copilot': return 'AI Project Copilot & Delivery Intelligence';
-      case 'excel': return 'Excel Bulk Import & Validation';
+      case 'excel': return 'Excel Bulk Ingestion & Validation';
       case 'documents': return 'Document Management Library';
-      case 'approvals': return 'Workflow Approval Center';
-      case 'team': return 'Team Allocation & Workload';
-      case 'reports': return 'Reports & Executive Analytics';
+      case 'approvals': return 'Governance & Approvals Hub';
+      case 'team': return 'Team Allocation & Capacity';
+      case 'reports': return 'Reports & Analytics Export';
       case 'settings': return 'Dynamic Schema Discovery & Configuration';
       default: return 'Enterprise Portal';
+    }
+  };
+
+  const getSubtitle = () => {
+    switch (activeView) {
+      case 'dashboard': return 'Real-time telemetry, portfolio KPIs, and delivery progress';
+      case 'timeline': return 'Multi-project Gantt roadmap with milestone markers and dependencies';
+      case 'copilot': return 'Azure OpenAI intelligence assistant with automated WBS generation';
+      case 'risks': return 'PMI-standard quantitative Probability vs. Impact matrix';
+      case 'financials': return 'Earned Value Management, CPI/SPI efficiency, and cost variance';
+      case 'excel': return 'Client-side SheetJS bulk upload with row-by-row error detection';
+      case 'kanban': return 'Drag-and-drop workflow status synchronized with SharePoint lists';
+      default: return 'Microsoft 365 SharePoint Online Enterprise Environment';
     }
   };
 
@@ -56,13 +69,15 @@ export const Header: React.FC = () => {
     <>
       <header
         style={{
-          height: '64px',
+          height: '68px',
           backgroundColor: themeStyles.bgHeader,
           borderBottom: `1px solid ${themeStyles.border}`,
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 24px',
+          padding: '0 28px',
           position: 'sticky',
           top: 0,
           zIndex: 9
@@ -73,21 +88,22 @@ export const Header: React.FC = () => {
           <h1
             style={{
               margin: 0,
-              fontSize: '18px',
-              fontWeight: 700,
+              fontSize: '17px',
+              fontWeight: 800,
               color: themeStyles.textPrimary,
-              letterSpacing: '-0.2px'
+              letterSpacing: '-0.3px',
+              lineHeight: 1.2
             }}
           >
             {getTitle()}
           </h1>
-          <div style={{ fontSize: '11px', color: themeStyles.textMuted }}>
-            Microsoft 365 SharePoint Online Enterprise Environment
+          <div style={{ fontSize: '11px', color: themeStyles.textSecondary, marginTop: '2px' }}>
+            {getSubtitle()}
           </div>
         </div>
 
-        {/* Center: Global Search */}
-        <div style={{ width: '320px', maxWidth: '35%' }}>
+        {/* Center: Global Search with Ctrl+K indicator */}
+        <div style={{ width: '340px', maxWidth: '35%', position: 'relative' }}>
           <SearchBox
             placeholder="Search projects, tasks, or clients..."
             value={globalSearch}
@@ -96,10 +112,12 @@ export const Header: React.FC = () => {
             underlined={false}
             styles={{
               root: {
-                backgroundColor: currentTheme === 'dark' ? '#13213d' : '#f1f5f9',
-                borderRadius: '8px',
+                backgroundColor: currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.04)' : '#f1f5f9',
+                borderRadius: '10px',
                 border: `1px solid ${themeStyles.border}`,
-                color: themeStyles.textPrimary
+                color: themeStyles.textPrimary,
+                height: '38px',
+                transition: 'border-color 0.15s ease'
               },
               field: {
                 color: themeStyles.textPrimary,
@@ -110,6 +128,30 @@ export const Header: React.FC = () => {
               }
             }}
           />
+          <div
+            style={{
+              position: 'absolute',
+              right: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              pointerEvents: 'none',
+              display: 'flex',
+              gap: '2px'
+            }}
+          >
+            <span
+              style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                color: themeStyles.textMuted,
+                backgroundColor: currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0',
+                padding: '2px 5px',
+                borderRadius: '4px'
+              }}
+            >
+              Ctrl K
+            </span>
+          </div>
         </div>
 
         {/* Right: Actions, Theme Toggle, Notifications & Persona */}
@@ -123,6 +165,7 @@ export const Header: React.FC = () => {
             styles={{
               root: {
                 color: themeStyles.textSecondary,
+                borderRadius: '8px',
                 ':hover': { color: themeStyles.accentBlue, backgroundColor: themeStyles.bgCardHover }
               }
             }}
@@ -139,6 +182,7 @@ export const Header: React.FC = () => {
                 styles={{
                   root: {
                     color: themeStyles.textSecondary,
+                    borderRadius: '8px',
                     ':hover': { color: themeStyles.accentBlue, backgroundColor: themeStyles.bgCardHover }
                   }
                 }}
@@ -148,14 +192,16 @@ export const Header: React.FC = () => {
               <span
                 style={{
                   position: 'absolute',
-                  top: '4px',
-                  right: '4px',
+                  top: '5px',
+                  right: '5px',
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
                   backgroundColor: themeStyles.accentRed,
+                  boxShadow: `0 0 8px ${themeStyles.accentRed}`,
                   pointerEvents: 'none'
                 }}
+                className="pulse-dot"
               />
             )}
           </div>
@@ -168,13 +214,14 @@ export const Header: React.FC = () => {
               directionalHint={DirectionalHint.bottomRightEdge}
               styles={{
                 calloutMain: {
-                  width: '320px',
-                  padding: '16px',
+                  width: '340px',
+                  padding: '18px',
                   backgroundColor: themeStyles.bgCard,
                   color: themeStyles.textPrimary,
                   border: `1px solid ${themeStyles.border}`,
-                  borderRadius: '10px',
-                  boxShadow: '0 8px 30px rgba(0,0,0,0.3)'
+                  borderRadius: '12px',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.4)',
+                  backdropFilter: 'blur(20px)'
                 }
               }}
             >
@@ -183,34 +230,46 @@ export const Header: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: '12px',
+                  marginBottom: '14px',
                   borderBottom: `1px solid ${themeStyles.border}`,
-                  paddingBottom: '8px'
+                  paddingBottom: '10px'
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: '14px' }}>Notifications</div>
-                <div style={{ fontSize: '11px', color: themeStyles.accentBlue }}>
+                <div style={{ fontWeight: 800, fontSize: '14px', letterSpacing: '-0.2px' }}>
+                  System Notifications
+                </div>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: themeStyles.accentBlue,
+                    backgroundColor: 'rgba(14, 165, 233, 0.12)',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    fontWeight: 700
+                  }}
+                >
                   {unreadNotificationCount} unread
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '280px', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
                 {notifications.map(n => (
                   <div
                     key={n.id}
                     onClick={() => markNotificationAsRead(n.id)}
                     style={{
-                      padding: '8px 10px',
-                      borderRadius: '6px',
-                      backgroundColor: n.isRead ? 'transparent' : 'rgba(0, 168, 232, 0.08)',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      backgroundColor: n.isRead ? 'transparent' : 'rgba(14, 165, 233, 0.08)',
                       borderLeft: n.isRead ? '3px solid transparent' : `3px solid ${themeStyles.accentBlue}`,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      transition: 'background-color 0.15s ease'
                     }}
                   >
-                    <div style={{ fontWeight: 600, fontSize: '12.5px', color: themeStyles.textPrimary }}>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: themeStyles.textPrimary }}>
                       {n.title}
                     </div>
-                    <div style={{ fontSize: '11.5px', color: themeStyles.textSecondary, marginTop: '2px' }}>
+                    <div style={{ fontSize: '12px', color: themeStyles.textSecondary, marginTop: '2px', lineHeight: 1.4 }}>
                       {n.message}
                     </div>
                     <div style={{ fontSize: '10px', color: themeStyles.textMuted, marginTop: '4px' }}>
@@ -222,26 +281,41 @@ export const Header: React.FC = () => {
             </Callout>
           )}
 
-          {/* User Persona */}
+          {/* User Persona with online indicator */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              paddingLeft: '8px',
+              gap: '10px',
+              paddingLeft: '12px',
               borderLeft: `1px solid ${themeStyles.border}`
             }}
           >
-            <Persona
-              text={currentUser.title}
-              secondaryText={currentUser.email}
-              size={PersonaSize.size32}
-              hidePersonaDetails={false}
-              styles={{
-                primaryText: { color: themeStyles.textPrimary, fontSize: '13px', fontWeight: 600 },
-                secondaryText: { color: themeStyles.textMuted, fontSize: '11px' }
-              }}
-            />
+            <div style={{ position: 'relative' }}>
+              <Persona
+                text={currentUser.title}
+                secondaryText={currentUser.jobTitle || currentUser.email}
+                size={PersonaSize.size32}
+                hidePersonaDetails={false}
+                styles={{
+                  primaryText: { color: themeStyles.textPrimary, fontSize: '13px', fontWeight: 700 },
+                  secondaryText: { color: themeStyles.textMuted, fontSize: '11px' }
+                }}
+              />
+              <span
+                style={{
+                  position: 'absolute',
+                  bottom: '1px',
+                  left: '24px',
+                  width: '9px',
+                  height: '9px',
+                  borderRadius: '50%',
+                  backgroundColor: themeStyles.accentGreen,
+                  border: `2px solid ${themeStyles.bgHeader}`,
+                  boxShadow: `0 0 6px ${themeStyles.accentGreen}`
+                }}
+              />
+            </div>
           </div>
         </div>
       </header>
@@ -273,8 +347,9 @@ export const Header: React.FC = () => {
               dismissButtonAriaLabel="Close"
               styles={{
                 root: {
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-                  borderRadius: '8px'
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.35)',
+                  borderRadius: '10px',
+                  border: `1px solid ${themeStyles.border}`
                 }
               }}
             >
