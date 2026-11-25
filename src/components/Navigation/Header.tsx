@@ -15,6 +15,7 @@ import {
 export const Header: React.FC = () => {
   const { 
     activeView, 
+    setActiveView,
     currentUser, 
     currentTheme, 
     toggleTheme, 
@@ -55,7 +56,8 @@ export const Header: React.FC = () => {
   const getSubtitle = () => {
     switch (activeView) {
       case 'dashboard': return 'Real-time telemetry, portfolio KPIs, and delivery progress';
-      case 'timeline': return 'Multi-project Gantt roadmap with milestone markers and dependencies';
+      case 'projects': return 'Live portfolio records with multi-column filtering, pagination, and health analytics';
+      case 'timeline': return 'Multi-project Gantt roadmap with milestone markers, timescale zoom, and dependencies';
       case 'copilot': return 'Azure OpenAI intelligence assistant with automated WBS generation';
       case 'risks': return 'PMI-standard quantitative Probability vs. Impact matrix';
       case 'financials': return 'Earned Value Management, CPI/SPI efficiency, and cost variance';
@@ -77,17 +79,29 @@ export const Header: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 28px',
+          padding: '0 24px',
           position: 'sticky',
           top: 0,
           zIndex: 9
         }}
       >
-        {/* Left: View Title & Subtitle */}
+        {/* Left: View Title & Breadcrumbs */}
         <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span 
+              onClick={() => setActiveView('dashboard')}
+              style={{ fontSize: '11px', color: themeStyles.textMuted, cursor: 'pointer', fontWeight: 600 }}
+            >
+              PORTAL
+            </span>
+            <span style={{ fontSize: '10px', color: themeStyles.textMuted }}>/</span>
+            <span style={{ fontSize: '11px', color: themeStyles.accentBlue, fontWeight: 700, textTransform: 'uppercase' }}>
+              {activeView}
+            </span>
+          </div>
           <h1
             style={{
-              margin: 0,
+              margin: '2px 0 0 0',
               fontSize: '17px',
               fontWeight: 800,
               color: themeStyles.textPrimary,
@@ -97,13 +111,10 @@ export const Header: React.FC = () => {
           >
             {getTitle()}
           </h1>
-          <div style={{ fontSize: '11px', color: themeStyles.textSecondary, marginTop: '2px' }}>
-            {getSubtitle()}
-          </div>
         </div>
 
         {/* Center: Global Search with Ctrl+K indicator */}
-        <div style={{ width: '340px', maxWidth: '35%', position: 'relative' }}>
+        <div style={{ width: '380px', maxWidth: '35%', position: 'relative' }}>
           <SearchBox
             placeholder="Search projects, tasks, or clients..."
             value={globalSearch}
@@ -145,7 +156,7 @@ export const Header: React.FC = () => {
                 fontWeight: 700,
                 color: themeStyles.textMuted,
                 backgroundColor: currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0',
-                padding: '2px 5px',
+                padding: '2px 6px',
                 borderRadius: '4px'
               }}
             >
@@ -156,17 +167,36 @@ export const Header: React.FC = () => {
 
         {/* Right: Actions, Theme Toggle, Notifications & Persona */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          {/* Quick Filter Pill */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.04)' : '#f1f5f9',
+              border: `1px solid ${themeStyles.border}`,
+              padding: '6px 12px',
+              borderRadius: '20px',
+              fontSize: '11.5px',
+              fontWeight: 600,
+              color: themeStyles.textSecondary
+            }}
+          >
+            <i className="ms-Icon ms-Icon--DateTime" style={{ color: themeStyles.accentBlue, fontSize: '13px' }} />
+            <span>Q1 2026 Fiscal</span>
+          </div>
+
           {/* Theme Toggle */}
           <IconButton
             iconProps={{ iconName: currentTheme === 'dark' ? 'Sunny' : 'ClearNight' }}
-            title={`Switch to ${currentTheme === 'dark' ? 'Light' : 'Dark Navy'} Mode`}
+            title={currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             ariaLabel="Toggle theme"
             onClick={toggleTheme}
             styles={{
               root: {
                 color: themeStyles.textSecondary,
                 borderRadius: '8px',
-                ':hover': { color: themeStyles.accentBlue, backgroundColor: themeStyles.bgCardHover }
+                ':hover': { color: themeStyles.textPrimary, backgroundColor: themeStyles.bgCardHover }
               }
             }}
           />
@@ -183,7 +213,7 @@ export const Header: React.FC = () => {
                   root: {
                     color: themeStyles.textSecondary,
                     borderRadius: '8px',
-                    ':hover': { color: themeStyles.accentBlue, backgroundColor: themeStyles.bgCardHover }
+                    ':hover': { color: themeStyles.textPrimary, backgroundColor: themeStyles.bgCardHover }
                   }
                 }}
               />
@@ -197,62 +227,42 @@ export const Header: React.FC = () => {
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  backgroundColor: themeStyles.accentRed,
-                  boxShadow: `0 0 8px ${themeStyles.accentRed}`,
+                  backgroundColor: '#f43f5e',
+                  boxShadow: '0 0 6px #f43f5e',
                   pointerEvents: 'none'
                 }}
-                className="pulse-dot"
               />
             )}
           </div>
 
-          {/* Notifications Callout */}
+          {/* Notifications Dropdown Callout */}
           {isNotificationsOpen && notificationButtonEl && (
             <Callout
               target={notificationButtonEl}
               onDismiss={() => setIsNotificationsOpen(false)}
               directionalHint={DirectionalHint.bottomRightEdge}
+              gapSpace={8}
               styles={{
-                calloutMain: {
-                  width: '340px',
-                  padding: '18px',
-                  backgroundColor: themeStyles.bgCard,
-                  color: themeStyles.textPrimary,
+                root: {
+                  width: '320px',
+                  backgroundColor: themeStyles.bgCardElevated,
                   border: `1px solid ${themeStyles.border}`,
                   borderRadius: '12px',
-                  boxShadow: '0 16px 40px rgba(0,0,0,0.4)',
-                  backdropFilter: 'blur(20px)'
+                  boxShadow: themeStyles.cardShadowHover,
+                  padding: '16px',
+                  zIndex: 100
                 }
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '14px',
-                  borderBottom: `1px solid ${themeStyles.border}`,
-                  paddingBottom: '10px'
-                }}
-              >
-                <div style={{ fontWeight: 800, fontSize: '14px', letterSpacing: '-0.2px' }}>
-                  System Notifications
-                </div>
-                <div
-                  style={{
-                    fontSize: '11px',
-                    color: themeStyles.accentBlue,
-                    backgroundColor: 'rgba(14, 165, 233, 0.12)',
-                    padding: '2px 8px',
-                    borderRadius: '10px',
-                    fontWeight: 700
-                  }}
-                >
-                  {unreadNotificationCount} unread
-                </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: themeStyles.textPrimary }}>
+                  Notifications ({unreadNotificationCount})
+                </h4>
+                <span style={{ fontSize: '11px', color: themeStyles.accentBlue, cursor: 'pointer', fontWeight: 600 }}>
+                  Mark all read
+                </span>
               </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '280px', overflowY: 'auto' }}>
                 {notifications.map(n => (
                   <div
                     key={n.id}
@@ -261,19 +271,15 @@ export const Header: React.FC = () => {
                       padding: '10px 12px',
                       borderRadius: '8px',
                       backgroundColor: n.isRead ? 'transparent' : 'rgba(14, 165, 233, 0.08)',
-                      borderLeft: n.isRead ? '3px solid transparent' : `3px solid ${themeStyles.accentBlue}`,
-                      cursor: 'pointer',
-                      transition: 'background-color 0.15s ease'
+                      border: `1px solid ${n.isRead ? themeStyles.border : 'rgba(14, 165, 233, 0.2)'}`,
+                      cursor: 'pointer'
                     }}
                   >
-                    <div style={{ fontWeight: 700, fontSize: '13px', color: themeStyles.textPrimary }}>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: themeStyles.textPrimary }}>
                       {n.title}
                     </div>
-                    <div style={{ fontSize: '12px', color: themeStyles.textSecondary, marginTop: '2px', lineHeight: 1.4 }}>
+                    <div style={{ fontSize: '11px', color: themeStyles.textSecondary, marginTop: '2px' }}>
                       {n.message}
-                    </div>
-                    <div style={{ fontSize: '10px', color: themeStyles.textMuted, marginTop: '4px' }}>
-                      {new Date(n.created).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
                 ))}
@@ -281,46 +287,23 @@ export const Header: React.FC = () => {
             </Callout>
           )}
 
-          {/* User Persona with online indicator */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              paddingLeft: '12px',
-              borderLeft: `1px solid ${themeStyles.border}`
-            }}
-          >
-            <div style={{ position: 'relative' }}>
-              <Persona
-                text={currentUser.title}
-                secondaryText={currentUser.jobTitle || currentUser.email}
-                size={PersonaSize.size32}
-                hidePersonaDetails={false}
-                styles={{
-                  primaryText: { color: themeStyles.textPrimary, fontSize: '13px', fontWeight: 700 },
-                  secondaryText: { color: themeStyles.textMuted, fontSize: '11px' }
-                }}
-              />
-              <span
-                style={{
-                  position: 'absolute',
-                  bottom: '1px',
-                  left: '24px',
-                  width: '9px',
-                  height: '9px',
-                  borderRadius: '50%',
-                  backgroundColor: themeStyles.accentGreen,
-                  border: `2px solid ${themeStyles.bgHeader}`,
-                  boxShadow: `0 0 6px ${themeStyles.accentGreen}`
-                }}
-              />
-            </div>
+          {/* User Persona Profile */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '8px', borderLeft: `1px solid ${themeStyles.border}` }}>
+            <Persona
+              text={currentUser.title}
+              secondaryText={currentUser.jobTitle || 'Executive'}
+              size={PersonaSize.size32}
+              hidePersonaDetails={false}
+              styles={{
+                primaryText: { color: themeStyles.textPrimary, fontWeight: 700, fontSize: '12.5px' },
+                secondaryText: { color: themeStyles.textSecondary, fontSize: '11px' }
+              }}
+            />
           </div>
         </div>
       </header>
 
-      {/* Floating Toast Alerts */}
+      {/* Toast Notification Stack */}
       <div
         style={{
           position: 'fixed',
@@ -330,33 +313,29 @@ export const Header: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           gap: '8px',
-          maxWidth: '380px'
+          maxWidth: '420px',
+          pointerEvents: 'none'
         }}
       >
-        {toasts.map(toast => {
-          let mbType = MessageBarType.success;
-          if (toast.type === 'error') mbType = MessageBarType.error;
-          else if (toast.type === 'warning') mbType = MessageBarType.warning;
-          else if (toast.type === 'info') mbType = MessageBarType.info;
-
-          return (
+        {toasts.map(t => (
+          <div key={t.id} style={{ pointerEvents: 'auto', boxShadow: themeStyles.cardShadowHover, borderRadius: '8px', overflow: 'hidden' }}>
             <MessageBar
-              key={toast.id}
-              messageBarType={mbType}
-              onDismiss={() => removeToast(toast.id)}
-              dismissButtonAriaLabel="Close"
-              styles={{
-                root: {
-                  boxShadow: '0 8px 30px rgba(0,0,0,0.35)',
-                  borderRadius: '10px',
-                  border: `1px solid ${themeStyles.border}`
-                }
-              }}
+              messageBarType={
+                t.type === 'success'
+                  ? MessageBarType.success
+                  : t.type === 'error'
+                  ? MessageBarType.error
+                  : t.type === 'warning'
+                  ? MessageBarType.warning
+                  : MessageBarType.info
+              }
+              onDismiss={() => removeToast(t.id)}
+              isMultiline={false}
             >
-              {toast.message}
+              {t.message}
             </MessageBar>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </>
   );

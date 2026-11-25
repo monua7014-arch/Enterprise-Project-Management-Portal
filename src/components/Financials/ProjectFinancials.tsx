@@ -11,13 +11,13 @@ import {
   TextField, 
   Dropdown, 
   IDropdownOption, 
-  ProgressIndicator, 
   Spinner, 
   SpinnerSize 
 } from '@fluentui/react';
 
 export const ProjectFinancials: React.FC = () => {
-  const { config, themeStyles, showToast, refreshTrigger, triggerRefresh } = useApp();
+  const { config, themeStyles, currentTheme, showToast, refreshTrigger } = useApp();
+  const isDark = currentTheme === 'dark';
 
   const [loading, setLoading] = useState<boolean>(true);
   const [financials, setFinancials] = useState<IFinancialMetric[]>([...INITIAL_FINANCIALS]);
@@ -74,10 +74,11 @@ export const ProjectFinancials: React.FC = () => {
     setExpenseNote('');
   };
 
-  const totalBudget = projects.reduce((acc, p) => acc + p.budget, 0);
+  const totalPlanned = financials.reduce((acc, f) => acc + f.plannedValue, 0);
   const totalActual = financials.reduce((acc, f) => acc + f.actualCost, 0);
   const totalEarned = financials.reduce((acc, f) => acc + f.earnedValue, 0);
-  const portfolioCPI = (totalEarned / (totalActual || 1)).toFixed(2);
+  const portfolioCPI = Number((totalEarned / (totalActual || 1)).toFixed(2));
+  const portfolioSPI = Number((totalEarned / (totalPlanned || 1)).toFixed(2));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '32px' }}>
@@ -92,27 +93,35 @@ export const ProjectFinancials: React.FC = () => {
           padding: '20px 24px',
           backgroundColor: themeStyles.bgCard,
           border: `1px solid ${themeStyles.border}`,
-          borderRadius: '12px'
+          borderRadius: '12px',
+          boxShadow: themeStyles.cardShadow
         }}
       >
         <div>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: themeStyles.textPrimary }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: themeStyles.textPrimary }}>
             Earned Value Management (EVM) & Budget Burn-Down
           </h2>
-          <div style={{ fontSize: '13px', color: themeStyles.textSecondary, marginTop: '4px' }}>
-            Quantitative cost performance index (CPI), schedule performance index (SPI), and Estimate at Completion (EAC) forecasting.
+          <div style={{ fontSize: '11.5px', color: themeStyles.textSecondary, marginTop: '2px' }}>
+            Mathematical cost variance, schedule performance indexes (CPI/SPI), and EAC forecasting
           </div>
         </div>
 
         <PrimaryButton
-          text="Log Project Expenditure"
+          text="Log Direct Expense"
           iconProps={{ iconName: 'Money' }}
           onClick={() => setIsExpenseModalOpen(true)}
-          styles={{ root: { backgroundColor: themeStyles.accentGreen, borderColor: themeStyles.accentGreen, borderRadius: '6px' } }}
+          styles={{
+            root: {
+              backgroundColor: themeStyles.accentBlue,
+              borderRadius: '8px',
+              height: '36px',
+              boxShadow: '0 4px 14px rgba(14, 165, 233, 0.4)'
+            }
+          }}
         />
       </div>
 
-      {/* KPI Cards */}
+      {/* EVM Performance KPI Summary Cards */}
       <div
         style={{
           display: 'grid',
@@ -120,203 +129,168 @@ export const ProjectFinancials: React.FC = () => {
           gap: '16px'
         }}
       >
-        <div style={{ padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, borderRadius: '10px' }}>
-          <div style={{ fontSize: '12px', color: themeStyles.textSecondary }}>Total Allocated Budget</div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: themeStyles.textPrimary, marginTop: '4px' }}>
-            ${totalBudget.toLocaleString()}
+        <div style={{ padding: '20px', borderRadius: '12px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, boxShadow: themeStyles.cardShadow }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: themeStyles.textSecondary, letterSpacing: '0.4px' }}>PLANNED VALUE (PV)</div>
+          <div style={{ fontSize: '26px', fontWeight: 800, color: themeStyles.accentBlue, margin: '10px 0 4px 0' }}>
+            ${totalPlanned.toLocaleString()}
           </div>
+          <div style={{ fontSize: '11px', color: themeStyles.textMuted }}>Baseline authorized budget</div>
         </div>
 
-        <div style={{ padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, borderRadius: '10px' }}>
-          <div style={{ fontSize: '12px', color: themeStyles.textSecondary }}>Actual Incurred Cost (AC)</div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: themeStyles.accentAmber, marginTop: '4px' }}>
-            ${totalActual.toLocaleString()}
-          </div>
-        </div>
-
-        <div style={{ padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, borderRadius: '10px' }}>
-          <div style={{ fontSize: '12px', color: themeStyles.textSecondary }}>Earned Value Delivered (EV)</div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: themeStyles.accentBlue, marginTop: '4px' }}>
+        <div style={{ padding: '20px', borderRadius: '12px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, boxShadow: themeStyles.cardShadow }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: themeStyles.textSecondary, letterSpacing: '0.4px' }}>EARNED VALUE (EV)</div>
+          <div style={{ fontSize: '26px', fontWeight: 800, color: '#10b981', margin: '10px 0 4px 0' }}>
             ${totalEarned.toLocaleString()}
           </div>
+          <div style={{ fontSize: '11px', color: themeStyles.textMuted }}>Value of completed delivery</div>
         </div>
 
-        <div style={{ padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, borderRadius: '10px' }}>
-          <div style={{ fontSize: '12px', color: Number(portfolioCPI) >= 1.0 ? themeStyles.accentGreen : themeStyles.accentRed, fontWeight: 600 }}>
-            Portfolio Cost Efficiency (CPI)
+        <div style={{ padding: '20px', borderRadius: '12px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, boxShadow: themeStyles.cardShadow }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: themeStyles.textSecondary, letterSpacing: '0.4px' }}>ACTUAL COST (AC)</div>
+          <div style={{ fontSize: '26px', fontWeight: 800, color: '#a855f7', margin: '10px 0 4px 0' }}>
+            ${totalActual.toLocaleString()}
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: Number(portfolioCPI) >= 1.0 ? themeStyles.accentGreen : themeStyles.accentRed, marginTop: '4px' }}>
-            {portfolioCPI}x
+          <div style={{ fontSize: '11px', color: themeStyles.textMuted }}>Incurred expenditures</div>
+        </div>
+
+        <div style={{ padding: '20px', borderRadius: '12px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, boxShadow: themeStyles.cardShadow }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: themeStyles.textSecondary, letterSpacing: '0.4px' }}>PORTFOLIO CPI</span>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: portfolioCPI >= 1 ? '#10b981' : '#f43f5e', backgroundColor: portfolioCPI >= 1 ? 'rgba(16,185,129,0.12)' : 'rgba(244,63,94,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+              {portfolioCPI >= 1 ? 'UNDER BUDGET' : 'OVER BUDGET'}
+            </span>
           </div>
-          <div style={{ fontSize: '11px', color: themeStyles.textMuted }}>
-            {Number(portfolioCPI) >= 1.0 ? 'Operating under budget' : 'Cost overrun alert'}
+          <div style={{ fontSize: '26px', fontWeight: 800, color: portfolioCPI >= 1 ? '#10b981' : '#f43f5e', margin: '10px 0 4px 0' }}>
+            {portfolioCPI}
           </div>
+          <div style={{ fontSize: '11px', color: themeStyles.textMuted }}>EV / AC cost efficiency</div>
+        </div>
+
+        <div style={{ padding: '20px', borderRadius: '12px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, boxShadow: themeStyles.cardShadow }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: themeStyles.textSecondary, letterSpacing: '0.4px' }}>PORTFOLIO SPI</span>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: portfolioSPI >= 1 ? '#10b981' : '#f59e0b', backgroundColor: portfolioSPI >= 1 ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+              {portfolioSPI >= 1 ? 'ON SCHEDULE' : 'SCHEDULE SLIP'}
+            </span>
+          </div>
+          <div style={{ fontSize: '26px', fontWeight: 800, color: portfolioSPI >= 1 ? '#10b981' : '#f59e0b', margin: '10px 0 4px 0' }}>
+            {portfolioSPI}
+          </div>
+          <div style={{ fontSize: '11px', color: themeStyles.textMuted }}>EV / PV schedule efficiency</div>
         </div>
       </div>
 
-      {/* EVM Performance Table */}
+      {/* EVM Project Breakdown Table */}
       <div
         style={{
-          padding: '24px',
           backgroundColor: themeStyles.bgCard,
           border: `1px solid ${themeStyles.border}`,
           borderRadius: '12px',
-          overflowX: 'auto'
+          overflow: 'hidden',
+          boxShadow: themeStyles.cardShadow
         }}
       >
-        <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 700, color: themeStyles.textPrimary }}>
-          Project-by-Project EVM Financial Variance Matrix
-        </h3>
-
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-          <thead>
-            <tr style={{ backgroundColor: themeStyles.bgCardHover, borderBottom: `1px solid ${themeStyles.border}`, color: themeStyles.textSecondary, fontWeight: 600 }}>
-              <th style={{ padding: '12px 16px' }}>Project Title</th>
-              <th style={{ padding: '12px 16px' }}>Planned Value (PV)</th>
-              <th style={{ padding: '12px 16px' }}>Earned Value (EV)</th>
-              <th style={{ padding: '12px 16px' }}>Actual Cost (AC)</th>
-              <th style={{ padding: '12px 16px' }}>Cost Variance (CV)</th>
-              <th style={{ padding: '12px 16px' }}>CPI Efficiency</th>
-              <th style={{ padding: '12px 16px' }}>SPI Schedule</th>
-              <th style={{ padding: '12px 16px' }}>Forecasted EAC</th>
-            </tr>
-          </thead>
-          <tbody>
-            {financials.map(f => {
-              const isCostHealthy = f.costVariance >= 0;
-              const isScheduleHealthy = f.scheduleVariance >= 0;
-
-              return (
-                <tr key={f.projectId} style={{ borderBottom: `1px solid ${themeStyles.border}` }}>
-                  <td style={{ padding: '14px 16px', fontWeight: 600, color: themeStyles.textPrimary }}>
-                    {f.projectTitle}
-                  </td>
-                  <td style={{ padding: '14px 16px', color: themeStyles.textSecondary }}>
-                    ${f.plannedValue.toLocaleString()}
-                  </td>
-                  <td style={{ padding: '14px 16px', fontWeight: 600, color: themeStyles.accentBlue }}>
-                    ${f.earnedValue.toLocaleString()}
-                  </td>
-                  <td style={{ padding: '14px 16px', color: themeStyles.textSecondary }}>
-                    ${f.actualCost.toLocaleString()}
-                  </td>
-                  <td style={{ padding: '14px 16px', fontWeight: 700, color: isCostHealthy ? themeStyles.accentGreen : themeStyles.accentRed }}>
-                    {isCostHealthy ? `+$${f.costVariance.toLocaleString()}` : `-$${Math.abs(f.costVariance).toLocaleString()}`}
-                  </td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <span
-                      style={{
-                        padding: '3px 8px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        backgroundColor: f.cpi >= 1.0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                        color: f.cpi >= 1.0 ? themeStyles.accentGreen : themeStyles.accentRed
-                      }}
-                    >
-                      {f.cpi.toFixed(2)}x
-                    </span>
-                  </td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <span
-                      style={{
-                        padding: '3px 8px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        backgroundColor: f.spi >= 1.0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                        color: f.spi >= 1.0 ? themeStyles.accentGreen : themeStyles.accentRed
-                      }}
-                    >
-                      {f.spi.toFixed(2)}x
-                    </span>
-                  </td>
-                  <td style={{ padding: '14px 16px', fontWeight: 700, color: themeStyles.textPrimary }}>
-                    ${Math.round(f.forecastedEAC).toLocaleString()}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Log Expense Modal */}
-      <Modal
-        isOpen={isExpenseModalOpen}
-        onDismiss={() => setIsExpenseModalOpen(false)}
-        styles={{
-          main: {
-            width: '500px',
-            backgroundColor: themeStyles.bgCard,
-            border: `1px solid ${themeStyles.border}`,
-            borderRadius: '12px',
-            overflow: 'hidden'
-          }
-        }}
-      >
-        <div style={{ padding: '20px 24px', borderBottom: `1px solid ${themeStyles.border}` }}>
-          <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: themeStyles.textPrimary }}>
-            Log Project Expenditure
+        <div style={{ padding: '16px 20px', borderBottom: `1px solid ${themeStyles.border}` }}>
+          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: themeStyles.textPrimary }}>
+            Project-Level EVM Variance & Forecasted EAC
           </h3>
         </div>
 
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <Dropdown
-            label="Target Project"
-            required
-            selectedKey={expenseProjectId}
-            options={projects.map(p => ({ key: p.id, text: p.title }))}
-            onChange={(_, opt) => opt && setExpenseProjectId(Number(opt.key))}
-          />
-
-          <TextField
-            label="Expenditure Amount ($ USD)"
-            type="number"
-            required
-            value={String(expenseAmount)}
-            onChange={(_, val) => setExpenseAmount(Number(val) || 0)}
-          />
-
-          <Dropdown
-            label="Cost Category"
-            selectedKey={expenseCategory}
-            options={[
-              { key: 'Labor', text: 'Labor & Engineering Hours' },
-              { key: 'Cloud Infrastructure', text: 'Cloud Infrastructure & Azure Subscriptions' },
-              { key: 'Software Licenses', text: 'Software Licenses & SaaS APIs' },
-              { key: 'Consulting', text: 'External Security / Audit Consulting' },
-              { key: 'Hardware', text: 'Hardware & Network Equipment' }
-            ]}
-            onChange={(_, opt) => opt && setExpenseCategory(String(opt.key))}
-          />
-
-          <TextField
-            label="Invoice / PO Reference Note"
-            placeholder="e.g. Azure Enterprise Agreement Q1 true-up invoice #EA-8902"
-            value={expenseNote}
-            onChange={(_, val) => setExpenseNote(val || '')}
-          />
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${themeStyles.border}`, color: themeStyles.textSecondary, textTransform: 'uppercase', fontSize: '10.5px' }}>
+                <th style={{ padding: '12px 18px' }}>Project Initiative</th>
+                <th style={{ padding: '12px 14px' }}>PV ($)</th>
+                <th style={{ padding: '12px 14px' }}>EV ($)</th>
+                <th style={{ padding: '12px 14px' }}>AC ($)</th>
+                <th style={{ padding: '12px 14px' }}>CV (Cost Var)</th>
+                <th style={{ padding: '12px 14px' }}>SV (Sched Var)</th>
+                <th style={{ padding: '12px 14px' }}>CPI</th>
+                <th style={{ padding: '12px 14px' }}>SPI</th>
+                <th style={{ padding: '12px 18px' }}>Forecasted EAC</th>
+              </tr>
+            </thead>
+            <tbody>
+              {financials.map(f => (
+                <tr key={f.projectId} style={{ borderBottom: `1px solid ${themeStyles.borderLight}` }}>
+                  <td style={{ padding: '12px 18px', fontWeight: 700, color: themeStyles.textPrimary }}>
+                    {f.projectTitle}
+                  </td>
+                  <td style={{ padding: '12px 14px', color: themeStyles.textSecondary }}>
+                    ${f.plannedValue.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '12px 14px', fontWeight: 600, color: '#10b981' }}>
+                    ${f.earnedValue.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '12px 14px', fontWeight: 600, color: '#a855f7' }}>
+                    ${f.actualCost.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '12px 14px', fontWeight: 700, color: f.costVariance >= 0 ? '#10b981' : '#f43f5e' }}>
+                    {f.costVariance >= 0 ? `+$${f.costVariance.toLocaleString()}` : `-$${Math.abs(f.costVariance).toLocaleString()}`}
+                  </td>
+                  <td style={{ padding: '12px 14px', fontWeight: 700, color: f.scheduleVariance >= 0 ? '#10b981' : '#f59e0b' }}>
+                    {f.scheduleVariance >= 0 ? `+$${f.scheduleVariance.toLocaleString()}` : `-$${Math.abs(f.scheduleVariance).toLocaleString()}`}
+                  </td>
+                  <td style={{ padding: '12px 14px', fontWeight: 800, color: f.cpi >= 1 ? '#10b981' : '#f43f5e' }}>
+                    {f.cpi}
+                  </td>
+                  <td style={{ padding: '12px 14px', fontWeight: 800, color: f.spi >= 1 ? '#10b981' : '#f59e0b' }}>
+                    {f.spi}
+                  </td>
+                  <td style={{ padding: '12px 18px', fontWeight: 700, color: themeStyles.textPrimary }}>
+                    ${f.forecastedEAC.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        <div
-          style={{
-            padding: '16px 24px',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '10px',
-            borderTop: `1px solid ${themeStyles.border}`,
-            backgroundColor: themeStyles.bgCardHover
+      {/* Expense Modal */}
+      {isExpenseModalOpen && (
+        <Modal
+          isOpen={isExpenseModalOpen}
+          onDismiss={() => setIsExpenseModalOpen(false)}
+          styles={{
+            main: { backgroundColor: themeStyles.bgCardElevated, borderRadius: '12px', padding: '24px', width: '450px', color: themeStyles.textPrimary }
           }}
         >
-          <DefaultButton text="Cancel" onClick={() => setIsExpenseModalOpen(false)} />
-          <PrimaryButton
-            text="Commit Expenditure"
-            onClick={handleLogExpense}
-            styles={{ root: { backgroundColor: themeStyles.accentGreen, borderColor: themeStyles.accentGreen } }}
-          />
-        </div>
-      </Modal>
+          <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 700 }}>Log Direct Actual Cost (AC)</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <Dropdown
+              label="Select Project"
+              selectedKey={expenseProjectId}
+              options={projects.map(p => ({ key: p.id, text: p.title }))}
+              onChange={(_, opt) => opt && setExpenseProjectId(Number(opt.key))}
+            />
+            <TextField
+              label="Expense Amount ($ USD)"
+              type="number"
+              value={String(expenseAmount)}
+              onChange={(_, val) => setExpenseAmount(Number(val) || 0)}
+              required
+            />
+            <TextField
+              label="Category"
+              value={expenseCategory}
+              onChange={(_, val) => setExpenseCategory(val || '')}
+            />
+            <TextField
+              label="Invoice / Justification Note"
+              multiline
+              rows={2}
+              value={expenseNote}
+              onChange={(_, val) => setExpenseNote(val || '')}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+            <DefaultButton text="Cancel" onClick={() => setIsExpenseModalOpen(false)} />
+            <PrimaryButton text="Record Expense" onClick={handleLogExpense} styles={{ root: { backgroundColor: themeStyles.accentBlue } }} />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

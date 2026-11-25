@@ -4,17 +4,22 @@ import { useApp } from '../../context/AppContext';
 import { TaskService } from '../../services';
 import { ITaskItem, TaskStatus, PriorityLevel } from '../../models';
 import { TaskModal } from './TaskModal';
+import { getStatusBadgeStyle } from '../../styles/theme';
 import { 
   PrimaryButton, 
   DefaultButton, 
   IconButton, 
-  ProgressIndicator, 
   Spinner, 
-  SpinnerSize 
+  SpinnerSize,
+  Dialog,
+  DialogType,
+  DialogFooter
 } from '@fluentui/react';
 
 export const KanbanBoard: React.FC = () => {
-  const { config, themeStyles, setActiveView, refreshTrigger, triggerRefresh, showToast } = useApp();
+  const { config, themeStyles, currentTheme, setActiveView, refreshTrigger, triggerRefresh, showToast } = useApp();
+  const isDark = currentTheme === 'dark';
+
   const [tasks, setTasks] = useState<ITaskItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [dragOverCol, setDragOverCol] = useState<TaskStatus | null>(null);
@@ -23,6 +28,7 @@ export const KanbanBoard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingTask, setEditingTask] = useState<ITaskItem | null>(null);
   const [defaultColForNewTask, setDefaultColForNewTask] = useState<TaskStatus>('To Do');
+  const [taskDetailPopup, setTaskDetailPopup] = useState<ITaskItem | null>(null);
 
   useEffect(() => {
     loadTasks();
@@ -116,6 +122,8 @@ export const KanbanBoard: React.FC = () => {
     );
   }
 
+  const nowTime = new Date().getTime();
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '32px' }}>
       {/* Top Header */}
@@ -126,18 +134,19 @@ export const KanbanBoard: React.FC = () => {
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '12px',
-          padding: '16px 20px',
+          padding: '20px 24px',
           backgroundColor: themeStyles.bgCard,
           border: `1px solid ${themeStyles.border}`,
-          borderRadius: '12px'
+          borderRadius: '12px',
+          boxShadow: themeStyles.cardShadow
         }}
       >
         <div>
-          <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: themeStyles.textPrimary }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: themeStyles.textPrimary }}>
             Interactive Workflow Kanban Board
           </h2>
-          <div style={{ fontSize: '12px', color: themeStyles.textMuted }}>
-            Drag and drop cards between workflow columns to update delivery status in SharePoint.
+          <div style={{ fontSize: '11.5px', color: themeStyles.textSecondary, marginTop: '2px' }}>
+            Drag and drop workstream cards between status swimlanes to auto-sync with SharePoint
           </div>
         </div>
 
@@ -146,7 +155,15 @@ export const KanbanBoard: React.FC = () => {
             text="Switch to Table View"
             iconProps={{ iconName: 'List' }}
             onClick={() => setActiveView('tasks')}
-            styles={{ root: { borderRadius: '6px' } }}
+            styles={{
+              root: {
+                borderRadius: '8px',
+                height: '36px',
+                borderColor: themeStyles.border,
+                backgroundColor: themeStyles.bgCard,
+                color: themeStyles.textPrimary
+              }
+            }}
           />
           <PrimaryButton
             text="New Task"
@@ -156,17 +173,24 @@ export const KanbanBoard: React.FC = () => {
               setDefaultColForNewTask('To Do');
               setIsModalOpen(true);
             }}
-            styles={{ root: { backgroundColor: themeStyles.accentBlue, borderRadius: '6px' } }}
+            styles={{
+              root: {
+                backgroundColor: themeStyles.accentBlue,
+                borderRadius: '8px',
+                height: '36px',
+                boxShadow: '0 4px 14px rgba(14, 165, 233, 0.4)'
+              }
+            }}
           />
         </div>
       </div>
 
-      {/* 4-Column Board Grid */}
+      {/* Kanban Swimlanes Grid */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '18px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: '16px',
           alignItems: 'start'
         }}
       >
@@ -181,181 +205,162 @@ export const KanbanBoard: React.FC = () => {
               onDragLeave={handleDragLeave}
               onDrop={e => handleDrop(e, col.status)}
               style={{
-                backgroundColor: isOver ? 'rgba(0, 168, 232, 0.08)' : themeStyles.bgCard,
-                border: isOver ? `2px dashed ${themeStyles.accentBlue}` : `1px solid ${themeStyles.border}`,
+                backgroundColor: isOver
+                  ? isDark ? 'rgba(14, 165, 233, 0.12)' : '#e0f2fe'
+                  : themeStyles.bgCard,
+                border: `1px solid ${isOver ? themeStyles.accentBlue : themeStyles.border}`,
                 borderRadius: '12px',
                 padding: '16px',
                 minHeight: '520px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '12px',
-                transition: 'all 0.15s ease'
+                transition: 'all 0.18s ease',
+                boxShadow: themeStyles.cardShadow
               }}
             >
               {/* Column Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '8px', borderBottom: `1px solid ${themeStyles.border}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px', borderBottom: `1px solid ${themeStyles.border}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: col.color }} />
-                  <span style={{ fontWeight: 700, fontSize: '14px', color: themeStyles.textPrimary }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: col.color }} />
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: themeStyles.textPrimary }}>
                     {col.label}
                   </span>
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      backgroundColor: themeStyles.bgCardHover,
-                      color: themeStyles.textSecondary,
-                      padding: '2px 8px',
-                      borderRadius: '10px'
-                    }}
-                  >
-                    {colTasks.length}
-                  </span>
                 </div>
-
-                <IconButton
-                  iconProps={{ iconName: 'Add' }}
-                  title={`Add to ${col.label}`}
-                  onClick={() => {
-                    setEditingTask(null);
-                    setDefaultColForNewTask(col.status);
-                    setIsModalOpen(true);
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9',
+                    color: themeStyles.textSecondary,
+                    padding: '2px 8px',
+                    borderRadius: '10px'
                   }}
-                  styles={{ root: { color: themeStyles.textSecondary, width: '28px', height: '28px' } }}
-                />
+                >
+                  {colTasks.length}
+                </span>
               </div>
 
-              {/* Cards Container */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
-                {colTasks.length === 0 ? (
-                  <div
-                    style={{
-                      padding: '30px 16px',
-                      textAlign: 'center',
-                      color: themeStyles.textMuted,
-                      fontSize: '12px',
-                      border: `1px dashed ${themeStyles.border}`,
-                      borderRadius: '8px'
-                    }}
-                  >
-                    Drop items here
-                  </div>
-                ) : (
-                  colTasks.map(t => {
-                    const isOverdue = t.status !== 'Completed' && new Date(t.dueDate).getTime() < Date.now();
-                    const priorityColor =
-                      t.priority === 'Critical' ? '#ef4444' :
-                      t.priority === 'High' ? '#f97316' :
-                      t.priority === 'Medium' ? '#f59e0b' : '#10b981';
+              {/* Task Cards */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {colTasks.map(t => {
+                  const isOverdue = t.status !== 'Completed' && new Date(t.dueDate).getTime() < nowTime;
 
-                    return (
-                      <div
-                        key={t.id}
-                        draggable={true}
-                        onDragStart={e => handleDragStart(e, t.id)}
-                        onClick={() => {
-                          setEditingTask(t);
-                          setIsModalOpen(true);
-                        }}
-                        style={{
-                          padding: '14px',
-                          backgroundColor: themeStyles.bgCardHover,
-                          border: `1px solid ${themeStyles.border}`,
-                          borderRadius: '8px',
-                          cursor: 'grab',
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-                          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '8px'
-                        }}
-                      >
-                        {/* Top: Priority & Task ID */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span
-                            style={{
-                              fontSize: '10px',
-                              fontWeight: 700,
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              backgroundColor: `${priorityColor}1a`,
-                              color: priorityColor
-                            }}
-                          >
+                  return (
+                    <div
+                      key={t.id}
+                      draggable
+                      onDragStart={e => handleDragStart(e, t.id)}
+                      onClick={() => setTaskDetailPopup(t)}
+                      style={{
+                        padding: '14px',
+                        backgroundColor: isDark ? '#111a30' : '#ffffff',
+                        border: `1px solid ${isOverdue ? 'rgba(244,63,94,0.4)' : themeStyles.border}`,
+                        borderRadius: '10px',
+                        cursor: 'grab',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        transition: 'transform 0.15s ease, border-color 0.15s ease'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.borderColor = themeStyles.accentBlue;
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.borderColor = isOverdue ? 'rgba(244,63,94,0.4)' : themeStyles.border;
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '10.5px', fontWeight: 800, color: themeStyles.accentBlue }}>
+                          {t.taskId}
+                        </span>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          {isOverdue && (
+                            <span style={{ fontSize: '9.5px', fontWeight: 800, color: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.12)', padding: '1px 6px', borderRadius: '4px' }}>
+                              OVERDUE
+                            </span>
+                          )}
+                          <span style={getStatusBadgeStyle(t.priority, isDark)}>
                             {t.priority}
-                          </span>
-                          <span style={{ fontSize: '11px', color: themeStyles.textMuted, fontWeight: 600 }}>
-                            {t.taskId}
-                          </span>
-                        </div>
-
-                        {/* Title */}
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: themeStyles.textPrimary, lineHeight: 1.4 }}>
-                          {t.title}
-                        </div>
-
-                        {/* Project Subtitle */}
-                        <div style={{ fontSize: '11px', color: themeStyles.accentBlue, fontWeight: 500 }}>
-                          {t.projectTitle || `Project #${t.projectId}`}
-                        </div>
-
-                        {/* Progress */}
-                        <div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: themeStyles.textMuted, marginBottom: '2px' }}>
-                            <span>Progress</span>
-                            <span>{t.completionPercentage}%</span>
-                          </div>
-                          <ProgressIndicator
-                            percentComplete={t.completionPercentage / 100}
-                            styles={{ progressBar: { backgroundColor: col.color } }}
-                          />
-                        </div>
-
-                        {/* Footer: Assignee & Due Date */}
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginTop: '4px',
-                            paddingTop: '6px',
-                            borderTop: `1px solid ${themeStyles.border}`,
-                            fontSize: '11px'
-                          }}
-                        >
-                          <span style={{ color: themeStyles.textSecondary, fontWeight: 500 }}>
-                            {t.assignedTo?.title || 'Unassigned'}
-                          </span>
-                          <span
-                            style={{
-                              fontWeight: 600,
-                              color: isOverdue ? themeStyles.accentRed : themeStyles.textMuted
-                            }}
-                          >
-                            {new Date(t.dueDate).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                           </span>
                         </div>
                       </div>
-                    );
-                  })
-                )}
+
+                      <div style={{ fontSize: '12.5px', fontWeight: 700, color: themeStyles.textPrimary, lineHeight: 1.3 }}>
+                        {t.title}
+                      </div>
+
+                      {t.projectTitle && (
+                        <div style={{ fontSize: '11px', color: themeStyles.textSecondary }}>
+                          {t.projectTitle}
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', paddingTop: '8px', borderTop: `1px solid ${themeStyles.borderLight}`, fontSize: '11px', color: themeStyles.textMuted }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <i className="ms-Icon ms-Icon--Calendar" style={{ fontSize: '12px' }} />
+                          <span>{new Date(t.dueDate).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                        </div>
+                        <span style={{ fontWeight: 600, color: themeStyles.textSecondary }}>
+                          {t.assignedTo?.title?.split(' ')[0] || 'Unassigned'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
         })}
       </div>
 
+      {/* Task Detail Quick View Dialog */}
+      {taskDetailPopup && (
+        <Dialog
+          hidden={!taskDetailPopup}
+          onDismiss={() => setTaskDetailPopup(null)}
+          dialogContentProps={{
+            type: DialogType.normal,
+            title: `${taskDetailPopup.taskId}: ${taskDetailPopup.title}`,
+            subText: taskDetailPopup.description
+          }}
+          styles={{
+            main: { backgroundColor: themeStyles.bgCardElevated, color: themeStyles.textPrimary }
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px', fontSize: '12px' }}>
+            <div>Project: <b>{taskDetailPopup.projectTitle || 'Primary Workstream'}</b></div>
+            <div>Assigned To: <b>{taskDetailPopup.assignedTo?.title || 'Unassigned'}</b></div>
+            <div>Due Date: <b>{new Date(taskDetailPopup.dueDate).toLocaleDateString()}</b></div>
+            <div>Completion: <b>{taskDetailPopup.completionPercentage}%</b></div>
+          </div>
+          <DialogFooter>
+            <PrimaryButton
+              text="Edit Task"
+              onClick={() => {
+                setEditingTask(taskDetailPopup);
+                setTaskDetailPopup(null);
+                setIsModalOpen(true);
+              }}
+            />
+            <DefaultButton text="Close" onClick={() => setTaskDetailPopup(null)} />
+          </DialogFooter>
+        </Dialog>
+      )}
+
       {/* Task Modal */}
-      <TaskModal
-        isOpen={isModalOpen}
-        taskToEdit={editingTask}
-        defaultStatus={defaultColForNewTask}
-        onDismiss={() => {
-          setIsModalOpen(false);
-          setEditingTask(null);
-        }}
-        onSave={handleSaveTask}
-      />
+      {isModalOpen && (
+        <TaskModal
+          isOpen={isModalOpen}
+          taskToEdit={editingTask}
+          defaultStatus={defaultColForNewTask}
+          onDismiss={() => setIsModalOpen(false)}
+          onSave={handleSaveTask}
+        />
+      )}
     </div>
   );
 };

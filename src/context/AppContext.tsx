@@ -42,6 +42,8 @@ export interface IAppContextType {
   toggleTheme: () => void;
   activeView: NavView;
   setActiveView: (view: NavView) => void;
+  portfolioFilter: { status?: string; priority?: string } | null;
+  setPortfolioFilter: (filter: { status?: string; priority?: string } | null) => void;
   selectedProjectId: number | null;
   setSelectedProjectId: (id: number | null) => void;
   sidebarCollapsed: boolean;
@@ -109,6 +111,7 @@ export interface IAppProviderProps {
 export const AppProvider: React.FC<IAppProviderProps> = ({ spContext, children }) => {
   const [currentTheme, setCurrentTheme] = useState<AppThemeMode>('dark');
   const [activeView, setActiveView] = useState<NavView>('dashboard');
+  const [portfolioFilter, setPortfolioFilter] = useState<{ status?: string; priority?: string } | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [globalSearch, setGlobalSearch] = useState<string>('');
@@ -181,6 +184,8 @@ export const AppProvider: React.FC<IAppProviderProps> = ({ spContext, children }
         toggleTheme,
         activeView,
         setActiveView,
+        portfolioFilter,
+        setPortfolioFilter,
         selectedProjectId,
         setSelectedProjectId,
         sidebarCollapsed,

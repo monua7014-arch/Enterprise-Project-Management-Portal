@@ -15,14 +15,12 @@ import {
   TextField, 
   Slider, 
   Persona, 
-  PersonaSize, 
-  ProgressIndicator, 
-  Spinner, 
-  SpinnerSize 
+  PersonaSize 
 } from '@fluentui/react';
 
 export const TeamManager: React.FC = () => {
-  const { config, themeStyles, refreshTrigger, triggerRefresh, showToast, globalSearch } = useApp();
+  const { config, themeStyles, currentTheme, refreshTrigger, showToast, globalSearch } = useApp();
+  const isDark = currentTheme === 'dark';
 
   const [loading, setLoading] = useState<boolean>(true);
   const [teamMembers, setTeamMembers] = useState<ITeamMemberItem[]>([...INITIAL_TEAM_MEMBERS]);
@@ -101,23 +99,31 @@ export const TeamManager: React.FC = () => {
     { key: 'Business Analyst', text: 'Business Analyst' }
   ];
 
-  const projectOptions: IDropdownOption[] = [
-    { key: 'All', text: 'All Projects' },
-    ...projects.map(p => ({ key: String(p.id), text: p.title }))
-  ];
+  // Aggregated Member Utilization (combines multi-project allocations)
+  const memberWorkloads = useMemo(() => {
+    const map = new Map<string, { member: ITeamMemberItem; totalAlloc: number; projects: string[] }>();
+    for (const tm of teamMembers) {
+      const p = projects.find(prj => prj.id === tm.projectId);
+      const email = tm.user.email;
+      if (!map.has(email)) {
+        map.set(email, { member: tm, totalAlloc: tm.allocationPercentage, projects: [p?.title || 'Core Project'] });
+      } else {
+        const existing = map.get(email)!;
+        existing.totalAlloc += tm.allocationPercentage;
+        if (p?.title && !existing.projects.includes(p.title)) {
+          existing.projects.push(p.title);
+        }
+      }
+    }
+    return Array.from(map.values());
+  }, [teamMembers, projects]);
 
   const filteredMembers = useMemo(() => {
     return teamMembers.filter(m => {
-      const matchSearch =
-        !searchQuery ||
-        m.user.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.role.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const matchProject = projectFilter === 'All' || String(m.projectId) === projectFilter;
-      const matchRole = roleFilter === 'All' || m.role === roleFilter;
-
-      return matchSearch && matchProject && matchRole;
+      const matchesSearch = !searchQuery || m.user.title.toLowerCase().includes(searchQuery.toLowerCase()) || m.user.email.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesProject = projectFilter === 'All' || String(m.projectId) === projectFilter;
+      const matchesRole = roleFilter === 'All' || m.role === roleFilter;
+      return matchesSearch && matchesProject && matchesRole;
     });
   }, [teamMembers, searchQuery, projectFilter, roleFilter]);
 
@@ -134,15 +140,16 @@ export const TeamManager: React.FC = () => {
           padding: '20px 24px',
           backgroundColor: themeStyles.bgCard,
           border: `1px solid ${themeStyles.border}`,
-          borderRadius: '12px'
+          borderRadius: '12px',
+          boxShadow: themeStyles.cardShadow
         }}
       >
         <div>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: themeStyles.textPrimary }}>
-            Resource Allocation & Team Capacity
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: themeStyles.textPrimary }}>
+            Team Capacity & Workload Allocation
           </h2>
-          <div style={{ fontSize: '13px', color: themeStyles.textSecondary, marginTop: '4px' }}>
-            Manage cross-functional delivery squads, assign roles, and monitor resource workloads.
+          <div style={{ fontSize: '11.5px', color: themeStyles.textSecondary, marginTop: '2px' }}>
+            Resource management, FTE utilization meters, and overallocation alerts
           </div>
         </div>
 
@@ -150,201 +157,237 @@ export const TeamManager: React.FC = () => {
           text="Assign Team Member"
           iconProps={{ iconName: 'AddFriend' }}
           onClick={() => setIsModalOpen(true)}
-          styles={{ root: { backgroundColor: themeStyles.accentBlue, borderRadius: '6px' } }}
+          styles={{
+            root: {
+              backgroundColor: themeStyles.accentBlue,
+              borderRadius: '8px',
+              height: '36px',
+              boxShadow: '0 4px 14px rgba(14, 165, 233, 0.4)'
+            }
+          }}
         />
       </div>
 
-      {/* Filter Bar */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '14px',
-          flexWrap: 'wrap',
-          padding: '16px 20px',
-          backgroundColor: themeStyles.bgCard,
-          border: `1px solid ${themeStyles.border}`,
-          borderRadius: '12px'
-        }}
-      >
-        <div style={{ width: '220px' }}>
-          <SearchBox
-            placeholder="Search member or role..."
-            value={searchQuery}
-            onChange={(_, val) => setSearchQuery(val || '')}
-            styles={{ root: { borderRadius: '6px' } }}
-          />
-        </div>
-
-        <div style={{ width: '180px' }}>
-          <Dropdown
-            selectedKey={projectFilter}
-            options={projectOptions}
-            onChange={(_, opt) => opt && setProjectFilter(String(opt.key))}
-            styles={{ root: { borderRadius: '6px' } }}
-          />
-        </div>
-
-        <div style={{ width: '180px' }}>
-          <Dropdown
-            selectedKey={roleFilter}
-            options={roleOptions}
-            onChange={(_, opt) => opt && setRoleFilter(String(opt.key))}
-            styles={{ root: { borderRadius: '6px' } }}
-          />
-        </div>
-      </div>
-
-      {/* Team Members Grid */}
+      {/* Aggregate Resource Workload Cards */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))',
-          gap: '18px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '16px'
         }}
       >
-        {filteredMembers.map(m => {
-          const p = projects.find(prj => prj.id === m.projectId);
+        {memberWorkloads.map(({ member, totalAlloc, projects: prjs }) => {
+          const isOverAllocated = totalAlloc > 100;
+
           return (
             <div
-              key={m.id}
+              key={member.user.email}
               style={{
-                padding: '20px',
-                backgroundColor: themeStyles.bgCard,
-                border: `1px solid ${themeStyles.border}`,
+                padding: '18px',
                 borderRadius: '12px',
+                backgroundColor: themeStyles.bgCard,
+                border: `1px solid ${isOverAllocated ? 'rgba(244,63,94,0.4)' : themeStyles.border}`,
+                boxShadow: themeStyles.cardShadow,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '14px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                gap: '12px'
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Persona
-                  text={m.user.title}
-                  secondaryText={m.user.email}
-                  size={PersonaSize.size40}
+                  text={member.user.title}
+                  secondaryText={member.role}
+                  size={PersonaSize.size32}
                   styles={{
-                    primaryText: { color: themeStyles.textPrimary, fontWeight: 700, fontSize: '14px' },
-                    secondaryText: { color: themeStyles.textMuted, fontSize: '12px' }
+                    primaryText: { color: themeStyles.textPrimary, fontWeight: 700 },
+                    secondaryText: { color: themeStyles.textSecondary }
                   }}
                 />
-                <IconButton
-                  iconProps={{ iconName: 'Cancel' }}
-                  title="Unassign"
-                  onClick={() => handleRemoveMember(m.id)}
-                  styles={{ root: { color: themeStyles.accentRed } }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12.5px' }}>
                 <span
                   style={{
-                    padding: '3px 8px',
-                    borderRadius: '4px',
-                    backgroundColor: 'rgba(0, 168, 232, 0.15)',
-                    color: themeStyles.accentBlue,
-                    fontWeight: 600
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    color: isOverAllocated ? '#f43f5e' : totalAlloc === 100 ? '#10b981' : themeStyles.accentBlue,
+                    backgroundColor: isOverAllocated ? 'rgba(244,63,94,0.12)' : 'rgba(14,165,233,0.12)',
+                    padding: '2px 8px',
+                    borderRadius: '10px'
                   }}
                 >
-                  {m.role}
-                </span>
-                <span style={{ color: themeStyles.textSecondary, fontWeight: 500 }}>
-                  {p ? `${p.projectId}` : 'Global'}
+                  {totalAlloc}% FTE
                 </span>
               </div>
 
+              {/* Allocation Progress Bar */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: themeStyles.textMuted, marginBottom: '4px' }}>
-                  <span>Capacity Allocation</span>
-                  <span style={{ fontWeight: 700, color: themeStyles.textPrimary }}>{m.allocationPercentage}%</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
+                  <span style={{ color: themeStyles.textMuted }}>Workload Utilization</span>
+                  <span style={{ fontWeight: 700, color: isOverAllocated ? '#f43f5e' : themeStyles.textPrimary }}>
+                    {isOverAllocated ? 'OVERALLOCATED' : `${100 - totalAlloc}% Available`}
+                  </span>
                 </div>
-                <ProgressIndicator
-                  percentComplete={m.allocationPercentage / 100}
-                  styles={{
-                    progressBar: {
-                      backgroundColor: m.allocationPercentage > 100 ? themeStyles.accentRed : themeStyles.accentGreen
-                    }
-                  }}
-                />
+                <div style={{ width: '100%', height: '7px', borderRadius: '4px', backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#e2e8f0', overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      width: `${Math.min(totalAlloc, 100)}%`,
+                      height: '100%',
+                      backgroundColor: isOverAllocated ? '#f43f5e' : totalAlloc === 100 ? '#10b981' : themeStyles.accentBlue,
+                      borderRadius: '4px'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ fontSize: '11px', color: themeStyles.textSecondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                Assigned: {prjs.join(', ')}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Modal: Assign Team Member */}
-      <Modal
-        isOpen={isModalOpen}
-        onDismiss={() => setIsModalOpen(false)}
-        styles={{
-          main: {
-            width: '500px',
-            backgroundColor: themeStyles.bgCard,
-            border: `1px solid ${themeStyles.border}`,
-            borderRadius: '12px',
-            overflow: 'hidden'
-          }
+      {/* Filter Toolbar & Assignment Register */}
+      <div
+        style={{
+          backgroundColor: themeStyles.bgCard,
+          border: `1px solid ${themeStyles.border}`,
+          borderRadius: '12px',
+          overflow: 'hidden',
+          boxShadow: themeStyles.cardShadow
         }}
       >
-        <div style={{ padding: '20px 24px', borderBottom: `1px solid ${themeStyles.border}` }}>
-          <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: themeStyles.textPrimary }}>
-            Assign Team Member to Project
+        <div style={{ padding: '16px 20px', borderBottom: `1px solid ${themeStyles.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: themeStyles.textPrimary }}>
+            Project Allocations Register ({filteredMembers.length})
           </h3>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div style={{ width: '160px' }}>
+              <Dropdown
+                selectedKey={roleFilter}
+                onChange={(_, opt) => opt && setRoleFilter(opt.key as string)}
+                options={roleOptions}
+                styles={{
+                  title: {
+                    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+                    borderColor: themeStyles.border,
+                    borderRadius: '8px',
+                    height: '32px',
+                    lineHeight: '30px',
+                    fontSize: '11.5px',
+                    color: themeStyles.textPrimary
+                  }
+                }}
+              />
+            </div>
+            <div style={{ width: '200px' }}>
+              <SearchBox
+                placeholder="Search member..."
+                value={searchQuery}
+                onChange={(_, val) => setSearchQuery(val || '')}
+                styles={{
+                  root: {
+                    backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+                    borderRadius: '8px',
+                    border: `1px solid ${themeStyles.border}`,
+                    height: '32px'
+                  },
+                  field: { fontSize: '11.5px', color: themeStyles.textPrimary }
+                }}
+              />
+            </div>
+          </div>
         </div>
 
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <TextField
-            label="Member Full Name"
-            required
-            value={newMemberName}
-            onChange={(_, val) => setNewMemberName(val || '')}
-          />
-          <TextField
-            label="Work Email"
-            value={newMemberEmail}
-            onChange={(_, val) => setNewMemberEmail(val || '')}
-          />
-          <Dropdown
-            label="Project"
-            required
-            selectedKey={newMemberProjectId}
-            options={projectOptions.filter(o => o.key !== 'All')}
-            onChange={(_, opt) => opt && setNewMemberProjectId(Number(opt.key))}
-          />
-          <Dropdown
-            label="Role"
-            selectedKey={newMemberRole}
-            options={roleOptions.filter(o => o.key !== 'All')}
-            onChange={(_, opt) => opt && setNewMemberRole(opt.key as TeamRole)}
-          />
-          <Slider
-            label={`Allocation: ${newMemberAllocation}%`}
-            min={10}
-            max={120}
-            step={10}
-            value={newMemberAllocation}
-            onChange={val => setNewMemberAllocation(val)}
-          />
-        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${themeStyles.border}`, color: themeStyles.textSecondary, textTransform: 'uppercase', fontSize: '10.5px' }}>
+                <th style={{ padding: '12px 18px' }}>Team Member</th>
+                <th style={{ padding: '12px 14px' }}>Role</th>
+                <th style={{ padding: '12px 14px' }}>Project Allocation</th>
+                <th style={{ padding: '12px 14px' }}>Assigned %</th>
+                <th style={{ padding: '12px 14px' }}>Assigned Date</th>
+                <th style={{ padding: '12px 18px', textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredMembers.map(m => {
+                const project = projects.find(p => p.id === m.projectId);
 
-        <div
-          style={{
-            padding: '16px 24px',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '10px',
-            borderTop: `1px solid ${themeStyles.border}`,
-            backgroundColor: themeStyles.bgCardHover
+                return (
+                  <tr key={m.id} style={{ borderBottom: `1px solid ${themeStyles.borderLight}` }}>
+                    <td style={{ padding: '12px 18px', fontWeight: 700, color: themeStyles.textPrimary }}>
+                      {m.user.title}
+                      <div style={{ fontSize: '10.5px', color: themeStyles.textSecondary, fontWeight: 400 }}>{m.user.email}</div>
+                    </td>
+                    <td style={{ padding: '12px 14px', color: themeStyles.accentBlue, fontWeight: 600 }}>
+                      {m.role}
+                    </td>
+                    <td style={{ padding: '12px 14px', color: themeStyles.textPrimary }}>
+                      {project?.title || 'Core Project'}
+                    </td>
+                    <td style={{ padding: '12px 14px', fontWeight: 800 }}>
+                      {m.allocationPercentage}%
+                    </td>
+                    <td style={{ padding: '12px 14px', color: themeStyles.textSecondary }}>
+                      {new Date(m.assignedDate).toLocaleDateString()}
+                    </td>
+                    <td style={{ padding: '12px 18px', textAlign: 'right' }}>
+                      <IconButton
+                        iconProps={{ iconName: 'Delete' }}
+                        title="Unassign"
+                        onClick={() => handleRemoveMember(m.id)}
+                        styles={{ root: { color: themeStyles.textSecondary, ':hover': { color: '#f43f5e' } } }}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Modal for Assigning Member */}
+      {isModalOpen && (
+        <Modal
+          isOpen={isModalOpen}
+          onDismiss={() => setIsModalOpen(false)}
+          styles={{
+            main: { backgroundColor: themeStyles.bgCardElevated, borderRadius: '12px', padding: '24px', width: '450px', color: themeStyles.textPrimary }
           }}
         >
-          <DefaultButton text="Cancel" onClick={() => setIsModalOpen(false)} />
-          <PrimaryButton
-            text="Assign to Project"
-            onClick={handleAssignMember}
-            styles={{ root: { backgroundColor: themeStyles.accentBlue } }}
-          />
-        </div>
-      </Modal>
+          <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 700 }}>Assign Team Member</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <TextField label="Full Name" value={newMemberName} onChange={(_, val) => setNewMemberName(val || '')} required />
+            <TextField label="Corporate Email" value={newMemberEmail} onChange={(_, val) => setNewMemberEmail(val || '')} />
+            <Dropdown
+              label="Role"
+              selectedKey={newMemberRole}
+              options={roleOptions.filter(o => o.key !== 'All')}
+              onChange={(_, opt) => opt && setNewMemberRole(opt.key as TeamRole)}
+            />
+            <Dropdown
+              label="Project"
+              selectedKey={newMemberProjectId}
+              options={projects.map(p => ({ key: p.id, text: p.title }))}
+              onChange={(_, opt) => opt && setNewMemberProjectId(Number(opt.key))}
+            />
+            <Slider
+              label={`FTE Allocation: ${newMemberAllocation}%`}
+              min={10}
+              max={100}
+              step={5}
+              value={newMemberAllocation}
+              onChange={val => setNewMemberAllocation(val)}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+            <DefaultButton text="Cancel" onClick={() => setIsModalOpen(false)} />
+            <PrimaryButton text="Assign Member" onClick={handleAssignMember} styles={{ root: { backgroundColor: themeStyles.accentBlue } }} />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

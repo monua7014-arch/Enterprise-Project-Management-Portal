@@ -3,19 +3,24 @@ import { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ProjectService, TaskService } from '../../services';
 import { IProjectItem, ITaskItem, IMilestoneItem } from '../../models';
+import { getStatusBadgeStyle } from '../../styles/theme';
 import { 
   Dropdown, 
   IDropdownOption, 
   DefaultButton, 
   IconButton, 
   Spinner, 
-  SpinnerSize 
+  SpinnerSize,
+  Dialog,
+  DialogType,
+  DialogFooter
 } from '@fluentui/react';
 
-type Timescale = 'Quarterly' | 'Monthly' | 'Weekly';
+type Timescale = 'Weekly' | 'Monthly' | 'Quarterly';
 
 export const GanttTimeline: React.FC = () => {
-  const { config, themeStyles, refreshTrigger, setSelectedProjectId, setActiveView } = useApp();
+  const { config, themeStyles, currentTheme, refreshTrigger, setSelectedProjectId, setActiveView } = useApp();
+  const isDark = currentTheme === 'dark';
 
   const [loading, setLoading] = useState<boolean>(true);
   const [projects, setProjects] = useState<IProjectItem[]>([]);
@@ -23,6 +28,7 @@ export const GanttTimeline: React.FC = () => {
   const [milestones, setMilestones] = useState<IMilestoneItem[]>([]);
   const [selectedProjectIdFilter, setSelectedProjectIdFilter] = useState<string>('All');
   const [timescale, setTimescale] = useState<Timescale>('Monthly');
+  const [selectedTaskDetail, setSelectedTaskDetail] = useState<ITaskItem | null>(null);
 
   useEffect(() => {
     loadData();
@@ -50,7 +56,7 @@ export const GanttTimeline: React.FC = () => {
     }
   };
 
-  // Timeline Date Range: Jan 2026 to Dec 2026
+  // Timeline Scale Calculations: Default Jan 1 2026 to Dec 31 2026
   const timelineStart = new Date('2026-01-01T00:00:00Z').getTime();
   const timelineEnd = new Date('2026-12-31T23:59:59Z').getTime();
   const totalDuration = timelineEnd - timelineStart;
@@ -59,6 +65,8 @@ export const GanttTimeline: React.FC = () => {
     'Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026', 'May 2026', 'Jun 2026',
     'Jul 2026', 'Aug 2026', 'Sep 2026', 'Oct 2026', 'Nov 2026', 'Dec 2026'
   ];
+
+  const quarters = ['Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026'];
 
   const filteredProjects = useMemo(() => {
     if (selectedProjectIdFilter === 'All') return projects;
@@ -74,16 +82,16 @@ export const GanttTimeline: React.FC = () => {
   const getBarMetrics = (startDate: string, endDate: string) => {
     const left = getPositionPercent(startDate);
     const right = getPositionPercent(endDate);
-    const width = Math.max(right - left, 1.5);
+    const width = Math.max(right - left, 2.5);
     return { left: `${left}%`, width: `${width}%` };
   };
 
-  // Current day position marker
+  const nowTime = new Date().getTime();
   const todayLeft = `${getPositionPercent(new Date().toISOString())}%`;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '32px' }}>
-      {/* Top Banner */}
+      {/* Top Banner & Scale Controls */}
       <div
         style={{
           display: 'flex',
@@ -94,20 +102,21 @@ export const GanttTimeline: React.FC = () => {
           padding: '20px 24px',
           backgroundColor: themeStyles.bgCard,
           border: `1px solid ${themeStyles.border}`,
-          borderRadius: '12px'
+          borderRadius: '12px',
+          boxShadow: themeStyles.cardShadow
         }}
       >
         <div>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: themeStyles.textPrimary }}>
-            Enterprise Interactive Gantt Schedule & Delivery Roadmap
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: themeStyles.textPrimary }}>
+            Enterprise Gantt Schedule & Delivery Roadmap
           </h2>
-          <div style={{ fontSize: '13px', color: themeStyles.textSecondary, marginTop: '4px' }}>
-            Multi-year milestone schedule with critical path indicators, delivery progress fills, and timeline dependencies.
+          <div style={{ fontSize: '11.5px', color: themeStyles.textSecondary, marginTop: '2px' }}>
+            Multi-tier timeline with milestone diamonds, delay indicators, and dependency markers
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ width: '200px' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ width: '220px' }}>
             <Dropdown
               selectedKey={selectedProjectIdFilter}
               options={[
@@ -115,24 +124,36 @@ export const GanttTimeline: React.FC = () => {
                 ...projects.map(p => ({ key: String(p.id), text: p.title }))
               ]}
               onChange={(_, opt) => opt && setSelectedProjectIdFilter(String(opt.key))}
-              styles={{ root: { borderRadius: '6px' } }}
+              styles={{
+                title: {
+                  backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+                  borderColor: themeStyles.border,
+                  borderRadius: '8px',
+                  height: '34px',
+                  lineHeight: '32px',
+                  fontSize: '12px',
+                  color: themeStyles.textPrimary
+                }
+              }}
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '4px', backgroundColor: themeStyles.bgCardHover, padding: '3px', borderRadius: '6px' }}>
-            {(['Monthly', 'Quarterly'] as Timescale[]).map(t => (
+          {/* Timescale Selector */}
+          <div style={{ display: 'flex', gap: '3px', backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9', padding: '3px', borderRadius: '8px', border: `1px solid ${themeStyles.border}` }}>
+            {(['Weekly', 'Monthly', 'Quarterly'] as Timescale[]).map(t => (
               <button
                 key={t}
                 onClick={() => setTimescale(t)}
                 style={{
                   padding: '5px 12px',
-                  borderRadius: '4px',
+                  borderRadius: '6px',
                   border: 'none',
-                  fontSize: '12px',
+                  fontSize: '11.5px',
                   fontWeight: 600,
                   cursor: 'pointer',
                   backgroundColor: timescale === t ? themeStyles.accentBlue : 'transparent',
-                  color: timescale === t ? '#fff' : themeStyles.textSecondary
+                  color: timescale === t ? '#fff' : themeStyles.textSecondary,
+                  transition: 'all 0.15s ease'
                 }}
               >
                 {t}
@@ -142,67 +163,76 @@ export const GanttTimeline: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Gantt Grid Canvas */}
+      {/* Main Gantt Canvas */}
       <div
         style={{
           backgroundColor: themeStyles.bgCard,
           border: `1px solid ${themeStyles.border}`,
           borderRadius: '12px',
           overflowX: 'auto',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
+          boxShadow: themeStyles.cardShadow
         }}
       >
         {loading ? (
           <div style={{ padding: '60px', textAlign: 'center' }}>
-            <Spinner size={SpinnerSize.large} label="Compiling interactive Gantt timeline..." />
+            <Spinner size={SpinnerSize.large} label="Compiling multi-track Gantt timeline..." />
           </div>
         ) : (
-          <div style={{ minWidth: '980px', padding: '20px' }}>
-            {/* Header: Months Grid */}
-            <div style={{ display: 'flex', borderBottom: `1px solid ${themeStyles.border}`, paddingBottom: '10px' }}>
-              <div style={{ width: '280px', flexShrink: 0, fontWeight: 700, fontSize: '13px', color: themeStyles.textSecondary }}>
-                Project & Work Items
+          <div style={{ minWidth: '1050px', padding: '20px 24px' }}>
+            {/* Header Columns Track */}
+            <div style={{ display: 'flex', borderBottom: `1px solid ${themeStyles.border}`, paddingBottom: '12px', marginBottom: '16px' }}>
+              <div style={{ width: '260px', fontWeight: 800, fontSize: '11px', color: themeStyles.textSecondary, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                WBS Workstream / Deliverable
               </div>
-              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', textAlign: 'center', fontSize: '12px', color: themeStyles.textMuted, fontWeight: 600 }}>
-                {months.map(m => (
-                  <div key={m} style={{ borderLeft: `1px solid ${themeStyles.borderLight}`, padding: '4px 0' }}>
-                    {m.split(' ')[0]}
-                  </div>
-                ))}
+              <div style={{ flex: 1, position: 'relative', display: 'flex' }}>
+                {timescale === 'Quarterly' ? (
+                  quarters.map((q, idx) => (
+                    <div key={idx} style={{ flex: 1, textAlign: 'center', fontSize: '11px', fontWeight: 700, color: themeStyles.textSecondary, borderLeft: `1px solid ${themeStyles.border}` }}>
+                      {q}
+                    </div>
+                  ))
+                ) : (
+                  months.map((m, idx) => (
+                    <div key={idx} style={{ flex: 1, textAlign: 'center', fontSize: '10.5px', fontWeight: 700, color: themeStyles.textSecondary, borderLeft: `1px solid ${themeStyles.border}` }}>
+                      {m.split(' ')[0]}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
-            {/* Timeline Rows per Project */}
-            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-              {/* Vertical Current Day Indicator Line */}
+            {/* Project & Task Rows */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative' }}>
+              {/* Today Vertical Reference Marker */}
               <div
                 style={{
                   position: 'absolute',
                   top: 0,
                   bottom: 0,
-                  left: `calc(280px + (100% - 280px) * ${parseFloat(todayLeft) / 100})`,
+                  left: `calc(260px + (100% - 260px) * ${parseFloat(todayLeft) / 100})`,
                   width: '2px',
-                  backgroundColor: themeStyles.accentRed,
+                  backgroundColor: '#f43f5e',
                   zIndex: 4,
                   pointerEvents: 'none'
                 }}
-                title="Current Date"
               >
-                <span
+                <div
                   style={{
                     position: 'absolute',
                     top: '-18px',
-                    left: '-22px',
-                    backgroundColor: themeStyles.accentRed,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: '#f43f5e',
                     color: '#fff',
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    padding: '1px 5px',
-                    borderRadius: '3px'
+                    fontSize: '9px',
+                    fontWeight: 800,
+                    padding: '2px 5px',
+                    borderRadius: '4px',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   TODAY
-                </span>
+                </div>
               </div>
 
               {filteredProjects.map(p => {
@@ -211,140 +241,139 @@ export const GanttTimeline: React.FC = () => {
                 const projectMilestones = milestones.filter(m => m.projectId === p.id);
 
                 return (
-                  <div key={p.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingBottom: '12px', borderBottom: `1px solid ${themeStyles.borderLight}` }}>
+                  <div key={p.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingBottom: '10px', borderBottom: `1px solid ${themeStyles.borderLight}` }}>
                     {/* Project Parent Bar */}
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <div style={{ width: '280px', flexShrink: 0, paddingRight: '12px' }}>
+                      <div style={{ width: '260px', paddingRight: '14px' }}>
                         <div
                           onClick={() => {
                             setSelectedProjectId(p.id);
                             setActiveView('project-detail');
                           }}
-                          style={{
-                            fontWeight: 700,
-                            fontSize: '13.5px',
-                            color: themeStyles.textPrimary,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                          }}
+                          style={{ fontSize: '13px', fontWeight: 700, color: themeStyles.textPrimary, cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                         >
-                          <span style={{ fontSize: '11px', color: themeStyles.accentBlue }}>{p.projectId}</span>
-                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</span>
+                          {p.title}
                         </div>
-                        <div style={{ fontSize: '11px', color: themeStyles.textMuted }}>
-                          {new Date(p.startDate).toLocaleDateString([], { month: 'short', day: 'numeric' })} – {new Date(p.endDate).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                        <div style={{ fontSize: '11px', color: themeStyles.textSecondary }}>
+                          {p.projectId} • {p.progress}% Complete
                         </div>
                       </div>
 
-                      {/* Bar Canvas */}
-                      <div style={{ flex: 1, position: 'relative', height: '28px', backgroundColor: `${themeStyles.bgCardHover}88`, borderRadius: '6px' }}>
+                      <div style={{ flex: 1, position: 'relative', height: '24px', backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : '#f8fafc', borderRadius: '6px' }}>
                         <div
                           style={{
                             position: 'absolute',
                             left: pMetrics.left,
                             width: pMetrics.width,
                             height: '100%',
-                            backgroundColor: 'rgba(0, 168, 232, 0.25)',
-                            border: `1px solid ${themeStyles.accentBlue}`,
                             borderRadius: '6px',
+                            background: p.status === 'Delayed'
+                              ? 'linear-gradient(90deg, #f43f5e 0%, #fb7185 100%)'
+                              : 'linear-gradient(90deg, #0ea5e9 0%, #6366f1 100%)',
+                            boxShadow: '0 2px 8px rgba(14, 165, 233, 0.3)',
                             display: 'flex',
                             alignItems: 'center',
-                            overflow: 'hidden',
-                            boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                            padding: '0 10px',
+                            color: '#fff',
+                            fontSize: '11px',
+                            fontWeight: 700
                           }}
                         >
-                          {/* Progress fill */}
-                          <div
-                            style={{
-                              height: '100%',
-                              width: `${p.progress}%`,
-                              background: 'linear-gradient(90deg, #0077b6 0%, #00a8e8 100%)',
-                              borderRadius: '4px'
-                            }}
-                          />
-                          <span
-                            style={{
-                              position: 'absolute',
-                              left: '8px',
-                              fontSize: '11px',
-                              fontWeight: 700,
-                              color: '#fff',
-                              textShadow: '0 1px 2px rgba(0,0,0,0.8)'
-                            }}
-                          >
-                            {p.progress}%
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {p.clientName}
                           </span>
                         </div>
-
-                        {/* Milestones Diamonds */}
-                        {projectMilestones.map(m => {
-                          const mPos = `${getPositionPercent(m.dueDate)}%`;
-                          return (
-                            <div
-                              key={m.id}
-                              style={{
-                                position: 'absolute',
-                                left: mPos,
-                                top: '5px',
-                                width: '16px',
-                                height: '16px',
-                                backgroundColor: m.status === 'Completed' ? themeStyles.accentGreen : themeStyles.accentAmber,
-                                transform: 'rotate(45deg)',
-                                zIndex: 3,
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                                cursor: 'pointer'
-                              }}
-                              title={`Milestone: ${m.title} (${m.status})`}
-                            />
-                          );
-                        })}
                       </div>
                     </div>
 
-                    {/* Nested Task Bars */}
+                    {/* Child Tasks Tracks */}
                     {projectTasks.map(t => {
                       const tMetrics = getBarMetrics(t.startDate, t.dueDate);
-                      const isComplete = t.status === 'Completed';
+                      const isDelayed = t.status !== 'Completed' && new Date(t.dueDate).getTime() < nowTime;
 
                       return (
-                        <div key={t.id} style={{ display: 'flex', alignItems: 'center', opacity: 0.9 }}>
-                          <div style={{ width: '280px', flexShrink: 0, paddingLeft: '18px', paddingRight: '12px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: 600, color: themeStyles.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              ↳ {t.title}
-                            </div>
-                            <div style={{ fontSize: '10.5px', color: themeStyles.textMuted }}>
-                              Assignee: {t.assignedTo?.title || 'Unassigned'}
+                        <div key={t.id} style={{ display: 'flex', alignItems: 'center' }}>
+                          <div style={{ width: '260px', paddingLeft: '16px', paddingRight: '14px' }}>
+                            <div
+                              onClick={() => setSelectedTaskDetail(t)}
+                              style={{
+                                fontSize: '11.5px',
+                                color: isDelayed ? '#f43f5e' : themeStyles.textPrimary,
+                                cursor: 'pointer',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                              }}
+                            >
+                              <span>↳ {t.title}</span>
+                              {isDelayed && (
+                                <span style={{ fontSize: '9px', fontWeight: 800, color: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.15)', padding: '1px 4px', borderRadius: '3px' }}>
+                                  OVERDUE
+                                </span>
+                              )}
                             </div>
                           </div>
 
                           <div style={{ flex: 1, position: 'relative', height: '18px' }}>
                             <div
+                              onClick={() => setSelectedTaskDetail(t)}
                               style={{
                                 position: 'absolute',
                                 left: tMetrics.left,
                                 width: tMetrics.width,
-                                height: '100%',
-                                backgroundColor: isComplete ? 'rgba(16, 185, 129, 0.25)' : 'rgba(245, 158, 11, 0.25)',
-                                border: `1px solid ${isComplete ? themeStyles.accentGreen : themeStyles.accentAmber}`,
+                                height: '12px',
+                                top: '3px',
                                 borderRadius: '4px',
-                                overflow: 'hidden'
+                                backgroundColor: t.status === 'Completed'
+                                  ? '#10b981'
+                                  : isDelayed
+                                  ? '#f43f5e'
+                                  : '#38bdf8',
+                                opacity: 0.85,
+                                cursor: 'pointer',
+                                transition: 'transform 0.15s ease'
                               }}
-                            >
-                              <div
-                                style={{
-                                  height: '100%',
-                                  width: `${t.completionPercentage}%`,
-                                  backgroundColor: isComplete ? themeStyles.accentGreen : themeStyles.accentAmber,
-                                  borderRadius: '3px'
-                                }}
-                              />
-                            </div>
+                              onMouseEnter={e => e.currentTarget.style.transform = 'scaleY(1.3)'}
+                              onMouseLeave={e => e.currentTarget.style.transform = 'scaleY(1)'}
+                            />
                           </div>
                         </div>
                       );
                     })}
+
+                    {/* Milestone Markers Track */}
+                    {projectMilestones.length > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <div style={{ width: '260px', paddingLeft: '16px', fontSize: '11px', color: themeStyles.accentAmber, fontWeight: 700 }}>
+                          ◆ Milestones Sign-offs
+                        </div>
+                        <div style={{ flex: 1, position: 'relative', height: '20px' }}>
+                          {projectMilestones.map(m => {
+                            const leftPos = getPositionPercent(m.dueDate);
+                            return (
+                              <div
+                                key={m.id}
+                                title={`${m.title} (Due: ${new Date(m.dueDate).toLocaleDateString()})`}
+                                style={{
+                                  position: 'absolute',
+                                  left: `${leftPos}%`,
+                                  top: '2px',
+                                  transform: 'translateX(-50%) rotate(45deg)',
+                                  width: '12px',
+                                  height: '12px',
+                                  backgroundColor: m.status === 'Completed' ? '#10b981' : '#f59e0b',
+                                  boxShadow: '0 0 6px rgba(245, 158, 11, 0.6)',
+                                  cursor: 'pointer'
+                                }}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -352,6 +381,37 @@ export const GanttTimeline: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Task Detail Modal */}
+      {selectedTaskDetail && (
+        <Dialog
+          hidden={!selectedTaskDetail}
+          onDismiss={() => setSelectedTaskDetail(null)}
+          dialogContentProps={{
+            type: DialogType.normal,
+            title: `Task Details: ${selectedTaskDetail.taskId}`,
+            subText: selectedTaskDetail.title
+          }}
+          styles={{
+            main: { backgroundColor: themeStyles.bgCardElevated, color: themeStyles.textPrimary }
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
+            <div style={{ fontSize: '12px', color: themeStyles.textSecondary }}>
+              {selectedTaskDetail.description}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '11.5px' }}>
+              <div>Status: <b>{selectedTaskDetail.status}</b></div>
+              <div>Priority: <b>{selectedTaskDetail.priority}</b></div>
+              <div>Due Date: <b>{new Date(selectedTaskDetail.dueDate).toLocaleDateString()}</b></div>
+              <div>Assigned: <b>{selectedTaskDetail.assignedTo?.title || 'Unassigned'}</b></div>
+            </div>
+          </div>
+          <DialogFooter>
+            <DefaultButton text="Close" onClick={() => setSelectedTaskDetail(null)} />
+          </DialogFooter>
+        </Dialog>
+      )}
     </div>
   );
 };

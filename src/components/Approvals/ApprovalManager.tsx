@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ApprovalService, ProjectService, TaskService } from '../../services';
 import { IApprovalItem, IProjectItem, ITaskItem, ApprovalStatus } from '../../models';
+import { getStatusBadgeStyle } from '../../styles/theme';
 import { 
   PrimaryButton, 
   DefaultButton, 
@@ -11,28 +12,30 @@ import {
   TextField, 
   Dropdown, 
   IDropdownOption, 
-  Spinner, 
-  SpinnerSize, 
   Pivot, 
   PivotItem, 
   Dialog, 
   DialogType, 
-  DialogFooter 
+  DialogFooter,
+  SearchBox 
 } from '@fluentui/react';
 
 export const ApprovalManager: React.FC = () => {
-  const { config, themeStyles, refreshTrigger, triggerRefresh, showToast, currentUser } = useApp();
+  const { config, themeStyles, currentTheme, refreshTrigger, triggerRefresh, showToast, currentUser } = useApp();
+  const isDark = currentTheme === 'dark';
 
   const [loading, setLoading] = useState<boolean>(true);
   const [approvals, setApprovals] = useState<IApprovalItem[]>([]);
   const [projects, setProjects] = useState<IProjectItem[]>([]);
   const [tasks, setTasks] = useState<ITaskItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedTab, setSelectedTab] = useState<string>('Pending');
 
   // Submit Request Modal State
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState<boolean>(false);
   const [requestItemType, setRequestItemType] = useState<'Project' | 'Task'>('Project');
   const [selectedItemId, setSelectedItemId] = useState<number>(0);
-  const [approverEmail, setApproverEmail] = useState<string>('approver@tenant.com');
+  const [approverEmail, setApproverEmail] = useState<string>('executive.sponsor@contoso.com');
   const [requestComments, setRequestComments] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -68,7 +71,7 @@ export const ApprovalManager: React.FC = () => {
   const handleSubmitRequest = async () => {
     setSubmitting(true);
     try {
-      let itemTitle = 'Untitled';
+      let itemTitle = 'Untitled Deliverable';
       if (requestItemType === 'Project') {
         const p = projects.find(prj => prj.id === selectedItemId);
         if (p) itemTitle = `${p.projectId}: ${p.title}`;
@@ -93,40 +96,46 @@ export const ApprovalManager: React.FC = () => {
         config
       );
 
-      showToast('Approval request submitted successfully!', 'success');
+      showToast('Approval request submitted with Power Automate dispatch!', 'success');
       setIsSubmitModalOpen(false);
       setRequestComments('');
       triggerRefresh();
     } catch (err: any) {
-      showToast(`Error submitting request: ${err.message}`, 'error');
+      showToast('Failed to dispatch approval request.', 'error');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleReviewSubmit = async () => {
+  const handleProcessDecision = async () => {
     if (!approvalToReview) return;
     setReviewing(true);
     try {
       await ApprovalService.getInstance().reviewApproval(
         approvalToReview.id,
         decision,
-        decisionComments || `Decision: ${decision}`,
+        decisionComments,
         config
       );
-      showToast(`Approval marked as ${decision}.`, 'success');
+
+      showToast(`Governance decision '${decision}' recorded.`, 'success');
       setApprovalToReview(null);
       setDecisionComments('');
       triggerRefresh();
     } catch (err: any) {
-      showToast(`Review failed: ${err.message}`, 'error');
+      showToast('Error recording governance decision.', 'error');
     } finally {
       setReviewing(false);
     }
   };
 
-  const pendingApprovals = approvals.filter(a => a.status === 'Pending');
-  const pastApprovals = approvals.filter(a => a.status !== 'Pending');
+  const filteredApprovals = useMemo(() => {
+    return approvals.filter(a => {
+      const matchesTab = selectedTab === 'All' || a.status === selectedTab;
+      const matchesSearch = !searchQuery || a.itemTitle.toLowerCase().includes(searchQuery.toLowerCase()) || a.requestedBy.title.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesTab && matchesSearch;
+    });
+  }, [approvals, selectedTab, searchQuery]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '32px' }}>
@@ -141,317 +150,266 @@ export const ApprovalManager: React.FC = () => {
           padding: '20px 24px',
           backgroundColor: themeStyles.bgCard,
           border: `1px solid ${themeStyles.border}`,
-          borderRadius: '12px'
+          borderRadius: '12px',
+          boxShadow: themeStyles.cardShadow
         }}
       >
         <div>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: themeStyles.textPrimary }}>
-            Governance & Approval Workflow Hub
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: themeStyles.textPrimary }}>
+            Governance & Executive Approvals Hub
           </h2>
-          <div style={{ fontSize: '13px', color: themeStyles.textSecondary, marginTop: '4px' }}>
-            Submit, review, and audit project changes and milestone sign-offs integrated with Power Automate.
+          <div style={{ fontSize: '11.5px', color: themeStyles.textSecondary, marginTop: '2px' }}>
+            Multi-stage audit trail, age indicators, and Power Automate workflow dispatch
           </div>
         </div>
 
         <PrimaryButton
           text="Submit Approval Request"
-          iconProps={{ iconName: 'CheckList' }}
+          iconProps={{ iconName: 'Send' }}
           onClick={() => setIsSubmitModalOpen(true)}
-          styles={{ root: { backgroundColor: themeStyles.accentBlue, borderRadius: '6px' } }}
+          styles={{
+            root: {
+              backgroundColor: themeStyles.accentBlue,
+              borderRadius: '8px',
+              height: '36px',
+              boxShadow: '0 4px 14px rgba(14, 165, 233, 0.4)'
+            }
+          }}
         />
       </div>
 
-      {/* KPI Metrics */}
+      {/* Approvals Table Card */}
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '16px'
-        }}
-      >
-        <div style={{ padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, borderRadius: '10px' }}>
-          <div style={{ fontSize: '12px', color: themeStyles.accentAmber, fontWeight: 600 }}>Pending Review</div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: themeStyles.accentAmber, marginTop: '4px' }}>
-            {pendingApprovals.length}
-          </div>
-        </div>
-
-        <div style={{ padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, borderRadius: '10px' }}>
-          <div style={{ fontSize: '12px', color: themeStyles.accentGreen, fontWeight: 600 }}>Approved Requests</div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: themeStyles.accentGreen, marginTop: '4px' }}>
-            {approvals.filter(a => a.status === 'Approved').length}
-          </div>
-        </div>
-
-        <div style={{ padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: `1px solid ${themeStyles.border}`, borderRadius: '10px' }}>
-          <div style={{ fontSize: '12px', color: themeStyles.accentRed, fontWeight: 600 }}>Rejected Requests</div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: themeStyles.accentRed, marginTop: '4px' }}>
-            {approvals.filter(a => a.status === 'Rejected').length}
-          </div>
-        </div>
-      </div>
-
-      {/* Tabbed View: Pending vs History */}
-      <div
-        style={{
-          padding: '20px',
           backgroundColor: themeStyles.bgCard,
           border: `1px solid ${themeStyles.border}`,
-          borderRadius: '12px'
+          borderRadius: '12px',
+          overflow: 'hidden',
+          boxShadow: themeStyles.cardShadow
         }}
       >
-        <Pivot aria-label="Approvals Hub">
-          <PivotItem headerText={`Pending Decisions (${pendingApprovals.length})`}>
-            <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {loading ? (
-                <div style={{ padding: '40px', textAlign: 'center' }}>
-                  <Spinner size={SpinnerSize.large} label="Loading pending approvals..." />
-                </div>
-              ) : pendingApprovals.length === 0 ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: themeStyles.textMuted }}>
-                  <i className="ms-Icon ms-Icon--CompletedSolid" style={{ fontSize: '32px', color: themeStyles.accentGreen, marginBottom: '8px', display: 'block' }} />
-                  <div style={{ fontSize: '14px', fontWeight: 600 }}>Zero Pending Approvals</div>
-                  <div style={{ fontSize: '12px' }}>All submitted requests have been reviewed.</div>
-                </div>
-              ) : (
-                pendingApprovals.map(a => (
-                  <div
-                    key={a.id}
-                    style={{
-                      padding: '16px 20px',
-                      borderRadius: '8px',
-                      backgroundColor: themeStyles.bgCardHover,
-                      border: `1px solid ${themeStyles.border}`,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: '12px'
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span
-                          style={{
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                            color: themeStyles.accentAmber,
-                            fontSize: '11px',
-                            fontWeight: 700
-                          }}
-                        >
-                          {a.itemType}
-                        </span>
-                        <span style={{ fontSize: '14px', fontWeight: 700, color: themeStyles.textPrimary }}>
-                          {a.itemTitle}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '12px', color: themeStyles.textSecondary, marginTop: '4px' }}>
-                        Requested by: <strong>{a.requestedBy.title}</strong> &nbsp;|&nbsp;
-                        Submitted: {new Date(a.submissionDate).toLocaleDateString()}
-                      </div>
+        {/* Navigation Tabs & Search */}
+        <div style={{ padding: '12px 20px', borderBottom: `1px solid ${themeStyles.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {['Pending', 'Approved', 'Rejected', 'All'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setSelectedTab(tab)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  backgroundColor: selectedTab === tab ? themeStyles.accentBlue : 'transparent',
+                  color: selectedTab === tab ? '#fff' : themeStyles.textSecondary,
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {tab} ({approvals.filter(a => tab === 'All' || a.status === tab).length})
+              </button>
+            ))}
+          </div>
+
+          <div style={{ width: '220px' }}>
+            <SearchBox
+              placeholder="Search deliverable or requester..."
+              value={searchQuery}
+              onChange={(_, val) => setSearchQuery(val || '')}
+              styles={{
+                root: {
+                  backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+                  borderRadius: '8px',
+                  border: `1px solid ${themeStyles.border}`,
+                  height: '32px'
+                },
+                field: { fontSize: '11.5px', color: themeStyles.textPrimary }
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Table Content */}
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '12px' }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${themeStyles.border}`, color: themeStyles.textSecondary, textTransform: 'uppercase', fontSize: '10.5px' }}>
+                <th style={{ padding: '12px 18px' }}>Deliverable / Item</th>
+                <th style={{ padding: '12px 14px' }}>Type</th>
+                <th style={{ padding: '12px 14px' }}>Requested By</th>
+                <th style={{ padding: '12px 14px' }}>Assigned Approver</th>
+                <th style={{ padding: '12px 14px' }}>Submission Age</th>
+                <th style={{ padding: '12px 14px' }}>Status</th>
+                <th style={{ padding: '12px 18px', textAlign: 'right' }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredApprovals.map(a => {
+                const subDate = new Date(a.submissionDate);
+                const ageDays = Math.max(0, Math.floor((new Date().getTime() - subDate.getTime()) / (1000 * 60 * 60 * 24)));
+
+                return (
+                  <tr key={a.id} style={{ borderBottom: `1px solid ${themeStyles.borderLight}` }}>
+                    <td style={{ padding: '12px 18px' }}>
+                      <div style={{ fontWeight: 700, color: themeStyles.textPrimary }}>{a.itemTitle}</div>
                       {a.comments && (
-                        <div style={{ fontSize: '12px', color: themeStyles.textMuted, marginTop: '4px', fontStyle: 'italic' }}>
+                        <div style={{ fontSize: '11px', color: themeStyles.textMuted, marginTop: '2px' }}>
                           "{a.comments}"
                         </div>
                       )}
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <PrimaryButton
-                        text="Review & Decide"
-                        iconProps={{ iconName: 'CheckboxComposite' }}
-                        onClick={() => {
-                          setApprovalToReview(a);
-                          setDecision('Approved');
-                          setDecisionComments('');
-                        }}
-                        styles={{ root: { backgroundColor: themeStyles.accentBlue, borderRadius: '6px' } }}
-                      />
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </PivotItem>
-
-          <PivotItem headerText={`Approval History (${pastApprovals.length})`}>
-            <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {pastApprovals.map(a => {
-                const isApproved = a.status === 'Approved';
-                return (
-                  <div
-                    key={a.id}
-                    style={{
-                      padding: '14px 18px',
-                      borderRadius: '8px',
-                      backgroundColor: themeStyles.bgCardHover,
-                      border: `1px solid ${themeStyles.border}`,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span
-                          style={{
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            backgroundColor: isApproved ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                            color: isApproved ? themeStyles.accentGreen : themeStyles.accentRed,
-                            fontSize: '11px',
-                            fontWeight: 700
+                    </td>
+                    <td style={{ padding: '12px 14px', color: themeStyles.accentBlue }}>
+                      {a.itemType}
+                    </td>
+                    <td style={{ padding: '12px 14px', color: themeStyles.textPrimary }}>
+                      {a.requestedBy.title}
+                    </td>
+                    <td style={{ padding: '12px 14px', color: themeStyles.textSecondary }}>
+                      {a.approver.email}
+                    </td>
+                    <td style={{ padding: '12px 14px', color: ageDays > 3 && a.status === 'Pending' ? '#f43f5e' : themeStyles.textSecondary, fontWeight: ageDays > 3 ? 700 : 400 }}>
+                      {ageDays === 0 ? 'Today' : `${ageDays}d ago`}
+                    </td>
+                    <td style={{ padding: '12px 14px' }}>
+                      <span style={getStatusBadgeStyle(a.status, isDark)}>
+                        {a.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 18px', textAlign: 'right' }}>
+                      {a.status === 'Pending' ? (
+                        <PrimaryButton
+                          text="Review"
+                          onClick={() => {
+                            setApprovalToReview(a);
+                            setDecision('Approved');
                           }}
-                        >
-                          {a.status.toUpperCase()}
-                        </span>
-                        <span style={{ fontSize: '13.5px', fontWeight: 600, color: themeStyles.textPrimary }}>
-                          {a.itemTitle}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '11.5px', color: themeStyles.textMuted, marginTop: '4px' }}>
-                        Decided on {a.decisionDate ? new Date(a.decisionDate).toLocaleDateString() : 'N/A'}: &nbsp;
-                        {a.comments ? `"${a.comments}"` : 'No review notes'}
-                      </div>
-                    </div>
-                  </div>
+                          styles={{
+                            root: {
+                              borderRadius: '6px',
+                              height: '28px',
+                              fontSize: '11.5px',
+                              backgroundColor: themeStyles.accentBlue
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: '11px', color: themeStyles.textMuted }}>Completed</span>
+                      )}
+                    </td>
+                  </tr>
                 );
               })}
-            </div>
-          </PivotItem>
-        </Pivot>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Review Dialog */}
-      <Dialog
-        hidden={!approvalToReview}
-        onDismiss={() => setApprovalToReview(null)}
-        dialogContentProps={{
-          type: DialogType.normal,
-          title: 'Review Approval Request',
-          subText: `Reviewing: ${approvalToReview?.itemTitle}`
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '10px' }}>
-          <Dropdown
-            label="Decision"
-            selectedKey={decision}
-            options={[
-              { key: 'Approved', text: 'Approve Request' },
-              { key: 'Rejected', text: 'Reject Request' }
-            ]}
-            onChange={(_, opt) => opt && setDecision(opt.key as any)}
-          />
-          <TextField
-            label="Reviewer Comments"
-            multiline
-            rows={3}
-            placeholder="Provide justification or conditions for this decision..."
-            value={decisionComments}
-            onChange={(_, val) => setDecisionComments(val || '')}
-          />
-        </div>
-
-        <DialogFooter>
-          <PrimaryButton
-            text={reviewing ? 'Recording...' : `Confirm ${decision}`}
-            onClick={handleReviewSubmit}
-            disabled={reviewing}
-            styles={{
-              root: {
-                backgroundColor: decision === 'Approved' ? themeStyles.accentGreen : themeStyles.accentRed,
-                borderColor: decision === 'Approved' ? themeStyles.accentGreen : themeStyles.accentRed
-              }
-            }}
-          />
-          <DefaultButton text="Cancel" onClick={() => setApprovalToReview(null)} disabled={reviewing} />
-        </DialogFooter>
-      </Dialog>
-
-      {/* Submit Request Modal */}
-      <Modal
-        isOpen={isSubmitModalOpen}
-        onDismiss={() => setIsSubmitModalOpen(false)}
-        styles={{
-          main: {
-            width: '540px',
-            backgroundColor: themeStyles.bgCard,
-            border: `1px solid ${themeStyles.border}`,
-            borderRadius: '12px',
-            overflow: 'hidden'
-          }
-        }}
-      >
-        <div style={{ padding: '20px 24px', borderBottom: `1px solid ${themeStyles.border}` }}>
-          <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: themeStyles.textPrimary }}>
-            Submit for Governance Review
-          </h3>
-        </div>
-
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <Dropdown
-            label="Submission Item Type"
-            selectedKey={requestItemType}
-            options={[
-              { key: 'Project', text: 'Project Milestone / Budget Review' },
-              { key: 'Task', text: 'Task / Deliverable Review' }
-            ]}
-            onChange={(_, opt) => opt && setRequestItemType(opt.key as any)}
-          />
-
-          {requestItemType === 'Project' ? (
-            <Dropdown
-              label="Select Project"
-              selectedKey={selectedItemId}
-              options={projects.map(p => ({ key: p.id, text: `${p.projectId}: ${p.title}` }))}
-              onChange={(_, opt) => opt && setSelectedItemId(Number(opt.key))}
-            />
-          ) : (
-            <Dropdown
-              label="Select Task"
-              selectedKey={selectedItemId}
-              options={tasks.map(t => ({ key: t.id, text: `${t.taskId}: ${t.title}` }))}
-              onChange={(_, opt) => opt && setSelectedItemId(Number(opt.key))}
-            />
-          )}
-
-          <TextField
-            label="Assigned Approver Email"
-            value={approverEmail}
-            onChange={(_, val) => setApproverEmail(val || '')}
-          />
-
-          <TextField
-            label="Request Justification & Notes"
-            multiline
-            rows={3}
-            placeholder="Explain why this requires executive sign-off..."
-            value={requestComments}
-            onChange={(_, val) => setRequestComments(val || '')}
-          />
-        </div>
-
-        <div
-          style={{
-            padding: '16px 24px',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '10px',
-            borderTop: `1px solid ${themeStyles.border}`,
-            backgroundColor: themeStyles.bgCardHover
+      {approvalToReview && (
+        <Dialog
+          hidden={!approvalToReview}
+          onDismiss={() => setApprovalToReview(null)}
+          dialogContentProps={{
+            type: DialogType.normal,
+            title: `Executive Governance Review: ${approvalToReview.itemTitle}`,
+            subText: `Requested by ${approvalToReview.requestedBy.title}`
+          }}
+          styles={{
+            main: { backgroundColor: themeStyles.bgCardElevated, color: themeStyles.textPrimary }
           }}
         >
-          <DefaultButton text="Cancel" onClick={() => setIsSubmitModalOpen(false)} disabled={submitting} />
-          <PrimaryButton
-            text={submitting ? 'Submitting...' : 'Submit to SharePoint'}
-            onClick={handleSubmitRequest}
-            disabled={submitting}
-            styles={{ root: { backgroundColor: themeStyles.accentBlue } }}
-          />
-        </div>
-      </Modal>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
+            <Dropdown
+              label="Governance Decision"
+              selectedKey={decision}
+              options={[
+                { key: 'Approved', text: 'Approve & Release Deliverable' },
+                { key: 'Rejected', text: 'Reject & Request Revisions' }
+              ]}
+              onChange={(_, opt) => opt && setDecision(opt.key as 'Approved' | 'Rejected')}
+            />
+            <TextField
+              label="Executive Comments / Justification"
+              multiline
+              rows={3}
+              value={decisionComments}
+              onChange={(_, val) => setDecisionComments(val || '')}
+              placeholder="Provide governance context or revision instructions..."
+            />
+          </div>
+          <DialogFooter>
+            <PrimaryButton
+              text={reviewing ? 'Recording...' : `Confirm ${decision}`}
+              disabled={reviewing}
+              onClick={handleProcessDecision}
+              styles={{
+                root: {
+                  backgroundColor: decision === 'Approved' ? '#10b981' : '#f43f5e',
+                  borderColor: decision === 'Approved' ? '#10b981' : '#f43f5e'
+                }
+              }}
+            />
+            <DefaultButton text="Cancel" onClick={() => setApprovalToReview(null)} />
+          </DialogFooter>
+        </Dialog>
+      )}
+
+      {/* Submit Approval Modal */}
+      {isSubmitModalOpen && (
+        <Modal
+          isOpen={isSubmitModalOpen}
+          onDismiss={() => setIsSubmitModalOpen(false)}
+          styles={{
+            main: { backgroundColor: themeStyles.bgCardElevated, borderRadius: '12px', padding: '24px', width: '450px', color: themeStyles.textPrimary }
+          }}
+        >
+          <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 700 }}>Dispatch Approval Request</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <Dropdown
+              label="Deliverable Category"
+              selectedKey={requestItemType}
+              options={[
+                { key: 'Project', text: 'Full Project Milestone Sign-off' },
+                { key: 'Task', text: 'Individual Technical Task' }
+              ]}
+              onChange={(_, opt) => opt && setRequestItemType(opt.key as 'Project' | 'Task')}
+            />
+            <Dropdown
+              label="Select Deliverable"
+              selectedKey={selectedItemId}
+              options={
+                requestItemType === 'Project'
+                  ? projects.map(p => ({ key: p.id, text: p.title }))
+                  : tasks.map(t => ({ key: t.id, text: t.title }))
+              }
+              onChange={(_, opt) => opt && setSelectedItemId(Number(opt.key))}
+            />
+            <TextField
+              label="Approver Corporate Email"
+              value={approverEmail}
+              onChange={(_, val) => setApproverEmail(val || '')}
+              required
+            />
+            <TextField
+              label="Submission Justification"
+              multiline
+              rows={2}
+              value={requestComments}
+              onChange={(_, val) => setRequestComments(val || '')}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+            <DefaultButton text="Cancel" onClick={() => setIsSubmitModalOpen(false)} />
+            <PrimaryButton
+              text={submitting ? 'Dispatching...' : 'Dispatch to Approver'}
+              disabled={submitting}
+              onClick={handleSubmitRequest}
+              styles={{ root: { backgroundColor: themeStyles.accentBlue } }}
+            />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

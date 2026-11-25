@@ -6,7 +6,8 @@ interface INavItem {
   key: NavView;
   label: string;
   iconName: string;
-  badge?: number;
+  badge?: string | number;
+  badgeColor?: string;
   highlight?: boolean;
 }
 
@@ -30,7 +31,7 @@ export const Sidebar: React.FC = () => {
   const sections: INavSection[] = [
     {
       items: [
-        { key: 'dashboard', label: 'Executive Dashboard', iconName: 'ViewDashboard' }
+        { key: 'dashboard', label: 'Executive Dashboard', iconName: 'ViewDashboard', badge: 'Live', badgeColor: '#10b981' }
       ]
     },
     {
@@ -45,7 +46,7 @@ export const Sidebar: React.FC = () => {
     {
       title: 'INTELLIGENCE & RISK',
       items: [
-        { key: 'copilot', label: 'AI Project Copilot', iconName: 'Sparkle', highlight: true },
+        { key: 'copilot', label: 'AI Project Copilot', iconName: 'Sparkle', highlight: true, badge: 'GPT-4', badgeColor: '#a855f7' },
         { key: 'risks', label: '5x5 Risk Heatmap', iconName: 'Warning12' },
         { key: 'financials', label: 'EVM & Cost Tracking', iconName: 'Money' }
       ]
@@ -55,7 +56,7 @@ export const Sidebar: React.FC = () => {
       items: [
         { key: 'excel', label: 'Excel Bulk Ingestion', iconName: 'ExcelLogo' },
         { key: 'documents', label: 'Documents Library', iconName: 'FabricFolder' },
-        { key: 'approvals', label: 'Approvals Hub', iconName: 'CheckList' },
+        { key: 'approvals', label: 'Approvals Hub', iconName: 'CheckList', badge: 'Pending', badgeColor: '#f59e0b' },
         { key: 'team', label: 'Team Capacity', iconName: 'People' }
       ]
     },
@@ -71,14 +72,13 @@ export const Sidebar: React.FC = () => {
   return (
     <aside
       style={{
-        width: sidebarCollapsed ? '72px' : '264px',
+        width: sidebarCollapsed ? '72px' : '260px',
         backgroundColor: themeStyles.bgSidebar,
         borderRight: `1px solid ${themeStyles.border}`,
         transition: 'width 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        minHeight: '800px',
         userSelect: 'none',
         zIndex: 10,
         boxShadow: isDark ? '4px 0 24px rgba(0,0,0,0.4)' : 'none'
@@ -91,15 +91,18 @@ export const Sidebar: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: sidebarCollapsed ? 'center' : 'space-between',
-          padding: sidebarCollapsed ? '0' : '0 18px',
+          padding: sidebarCollapsed ? '0' : '0 16px',
           borderBottom: `1px solid ${themeStyles.border}`,
           background: isDark
-            ? 'linear-gradient(180deg, rgba(14, 165, 233, 0.05) 0%, transparent 100%)'
+            ? 'linear-gradient(180deg, rgba(14, 165, 233, 0.06) 0%, transparent 100%)'
             : 'transparent'
         }}
       >
         {!sidebarCollapsed && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div 
+            onClick={() => setActiveView('dashboard')}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          >
             <div
               style={{
                 width: '36px',
@@ -111,8 +114,8 @@ export const Sidebar: React.FC = () => {
                 justifyContent: 'center',
                 color: '#fff',
                 fontWeight: 800,
-                fontSize: '16px',
-                boxShadow: '0 4px 16px rgba(14, 165, 233, 0.4)'
+                fontSize: '15px',
+                boxShadow: '0 4px 16px rgba(14, 165, 233, 0.35)'
               }}
             >
               EP
@@ -130,7 +133,7 @@ export const Sidebar: React.FC = () => {
                 EnterprisePortal
               </div>
               <div style={{ fontSize: '10.5px', color: themeStyles.accentBlue, fontWeight: 600, letterSpacing: '0.4px' }}>
-                SPFx M365 SUITE
+                SPFx M365 SAAS
               </div>
             </div>
           </div>
@@ -151,10 +154,10 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Nav Menu Sections */}
-      <nav style={{ flex: 1, padding: '14px 10px', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {sections.map((sec, sIdx) => (
-            <div key={sIdx} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            <div key={sIdx} style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               {!sidebarCollapsed && sec.title && (
                 <div
                   style={{
@@ -162,7 +165,7 @@ export const Sidebar: React.FC = () => {
                     fontWeight: 700,
                     letterSpacing: '0.8px',
                     color: themeStyles.textMuted,
-                    padding: '6px 12px 3px 12px',
+                    padding: '8px 12px 4px 12px',
                     textTransform: 'uppercase'
                   }}
                 >
@@ -172,105 +175,92 @@ export const Sidebar: React.FC = () => {
 
               {sec.items.map(item => {
                 const isActive = activeView === item.key;
-                const content = (
+                const buttonContent = (
                   <button
                     key={item.key}
                     onClick={() => setActiveView(item.key)}
                     style={{
-                      width: '100%',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                      gap: '12px',
+                      justifyContent: sidebarCollapsed ? 'center' : 'space-between',
+                      width: '100%',
                       padding: sidebarCollapsed ? '10px 0' : '9px 12px',
                       borderRadius: '8px',
                       border: 'none',
-                      outline: 'none',
-                      cursor: 'pointer',
                       backgroundColor: isActive
-                        ? isDark
-                          ? 'rgba(14, 165, 233, 0.14)'
-                          : 'rgba(2, 132, 199, 0.1)'
-                        : item.highlight
-                        ? isDark
-                          ? 'rgba(168, 85, 247, 0.08)'
-                          : 'rgba(168, 85, 247, 0.06)'
+                        ? isDark ? 'rgba(14, 165, 233, 0.16)' : '#e0f2fe'
                         : 'transparent',
                       color: isActive
                         ? themeStyles.accentBlue
-                        : item.highlight
-                        ? '#c084fc'
                         : themeStyles.textSecondary,
-                      fontWeight: isActive ? 700 : item.highlight ? 600 : 500,
-                      fontSize: '13px',
-                      transition: 'all 0.15s ease-in-out',
-                      textAlign: 'left',
-                      position: 'relative'
+                      cursor: 'pointer',
+                      outline: 'none',
+                      position: 'relative',
+                      transition: 'all 0.15s ease',
+                      fontWeight: isActive ? 600 : 500,
+                      fontSize: '13px'
                     }}
                     onMouseEnter={e => {
                       if (!isActive) {
-                        e.currentTarget.style.backgroundColor = themeStyles.bgCardHover;
+                        e.currentTarget.style.backgroundColor = isDark ? 'rgba(255, 255, 255, 0.05)' : '#f1f5f9';
                         e.currentTarget.style.color = themeStyles.textPrimary;
                       }
                     }}
                     onMouseLeave={e => {
                       if (!isActive) {
-                        e.currentTarget.style.backgroundColor = item.highlight
-                          ? isDark ? 'rgba(168, 85, 247, 0.08)' : 'rgba(168, 85, 247, 0.06)'
-                          : 'transparent';
-                        e.currentTarget.style.color = item.highlight ? '#c084fc' : themeStyles.textSecondary;
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = themeStyles.textSecondary;
                       }
                     }}
                   >
-                    {/* Active Left Indicator Bar */}
                     {isActive && (
-                      <span
+                      <div
                         style={{
                           position: 'absolute',
-                          left: '0px',
+                          left: 0,
                           top: '6px',
                           bottom: '6px',
-                          width: '3px',
-                          backgroundColor: themeStyles.accentBlue,
+                          width: '3.5px',
                           borderRadius: '0 4px 4px 0',
+                          backgroundColor: themeStyles.accentBlue,
                           boxShadow: `0 0 10px ${themeStyles.accentBlue}`
                         }}
                       />
                     )}
 
-                    <i
-                      className={`ms-Icon ms-Icon--${item.iconName}`}
-                      style={{
-                        fontSize: '17px',
-                        color: isActive
-                          ? themeStyles.accentBlue
-                          : item.highlight
-                          ? '#c084fc'
-                          : themeStyles.textSecondary,
-                        minWidth: '20px',
-                        textAlign: 'center'
-                      }}
-                    />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <i
+                        className={`ms-Icon ms-Icon--${item.iconName}`}
+                        style={{
+                          fontSize: '15px',
+                          color: isActive
+                            ? themeStyles.accentBlue
+                            : item.highlight
+                              ? themeStyles.accentPurple
+                              : themeStyles.textSecondary,
+                          transition: 'color 0.15s ease'
+                        }}
+                      />
+                      {!sidebarCollapsed && (
+                        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.label}
+                        </span>
+                      )}
+                    </div>
 
-                    {!sidebarCollapsed && (
-                      <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {item.label}
-                      </span>
-                    )}
-
-                    {!sidebarCollapsed && item.highlight && (
+                    {!sidebarCollapsed && item.badge && (
                       <span
                         style={{
-                          background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 100%)',
-                          color: '#fff',
-                          fontSize: '9.5px',
-                          fontWeight: 800,
-                          padding: '1px 6px',
-                          borderRadius: '4px',
-                          boxShadow: '0 2px 6px rgba(168, 85, 247, 0.35)'
+                          fontSize: '10px',
+                          fontWeight: 700,
+                          padding: '2px 7px',
+                          borderRadius: '10px',
+                          backgroundColor: item.badgeColor ? `${item.badgeColor}22` : 'rgba(255,255,255,0.08)',
+                          color: item.badgeColor || themeStyles.accentBlue,
+                          border: `1px solid ${item.badgeColor ? `${item.badgeColor}44` : 'rgba(255,255,255,0.1)'}`
                         }}
                       >
-                        AI
+                        {item.badge}
                       </span>
                     )}
                   </button>
@@ -278,87 +268,49 @@ export const Sidebar: React.FC = () => {
 
                 if (sidebarCollapsed) {
                   return (
-                    <TooltipHost key={item.key} content={item.label} delay={0}>
-                      {content}
+                    <TooltipHost key={item.key} content={item.label} calloutProps={{ gapSpace: 8 }}>
+                      {buttonContent}
                     </TooltipHost>
                   );
                 }
 
-                return content;
+                return buttonContent;
               })}
             </div>
           ))}
         </div>
       </nav>
 
-      {/* Footer / System Status */}
+      {/* Footer / Tenant Info */}
       <div
         style={{
-          padding: '14px 16px',
+          padding: sidebarCollapsed ? '12px 6px' : '14px 16px',
           borderTop: `1px solid ${themeStyles.border}`,
-          fontSize: '11px',
-          color: themeStyles.textMuted
+          backgroundColor: isDark ? 'rgba(0,0,0,0.25)' : '#f8fafc',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+          gap: '10px'
         }}
       >
-        {!sidebarCollapsed ? (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span
-                  style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: themeStyles.accentGreen,
-                    boxShadow: `0 0 8px ${themeStyles.accentGreen}`
-                  }}
-                  className="pulse-dot"
-                />
-                <span style={{ fontWeight: 600, color: themeStyles.textPrimary }}>SharePoint Online</span>
-              </div>
-              <span
-                style={{
-                  fontSize: '10px',
-                  color: themeStyles.accentBlue,
-                  fontWeight: 700,
-                  backgroundColor: 'rgba(14, 165, 233, 0.12)',
-                  padding: '1px 6px',
-                  borderRadius: '4px'
-                }}
-              >
-                v1.18.2
-              </span>
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            backgroundColor: '#10b981',
+            boxShadow: '0 0 8px #10b981',
+            flexShrink: 0
+          }}
+        />
+        {!sidebarCollapsed && (
+          <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: themeStyles.textPrimary }}>
+              SharePoint Online
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px', color: themeStyles.textMuted }}>
-              <span>Shortcut Command</span>
-              <span
-                style={{
-                  backgroundColor: themeStyles.bgCardHover,
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  fontSize: '10px',
-                  color: themeStyles.textPrimary,
-                  border: `1px solid ${themeStyles.border}`
-                }}
-              >
-                Ctrl + K
-              </span>
+            <div style={{ fontSize: '10px', color: themeStyles.textMuted }}>
+              Production Live Tenant
             </div>
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center' }}>
-            <span
-              style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: themeStyles.accentGreen,
-                display: 'inline-block',
-                boxShadow: `0 0 8px ${themeStyles.accentGreen}`
-              }}
-              className="pulse-dot"
-              title="SharePoint Connected (Ctrl+K for commands)"
-            />
           </div>
         )}
       </div>
