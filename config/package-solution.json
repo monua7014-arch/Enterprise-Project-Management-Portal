@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "enterprise-project-portal-client-side-solution",
+    "id": "e4c192df-8f52-47d0-9833-2bf9b4d8dce2",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "Enterprise SharePoint Solutions",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Enterprise Project & Workflow Management Portal"
+      },
+      "longDescription": {
+        "default": "Enterprise-grade Project & Workflow Management Portal with Projects, Tasks, Milestones, Approvals, Documents, Excel Bulk Upload, and Dynamic Configuration."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "enterprise-project-portal Feature",
+        "description": "Activates elements of the enterprise project portal.",
+        "id": "c71a3964-b789-4859-93e8-5dc6397e59b1",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/enterprise-project-portal.sppkg"
+  }
+}

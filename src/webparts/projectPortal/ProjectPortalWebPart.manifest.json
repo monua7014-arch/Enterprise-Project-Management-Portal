@@ -1,0 +1,23 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "a8f3b251-87a2-4a09-90bc-3ef1a69b7341",
+  "alias": "ProjectPortalWebPart",
+  "componentType": "WebPart",
+  "version": "1.0.0",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
+  "preconfiguredEntries": [
+    {
+      "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+      "group": { "default": "Advanced" },
+      "title": { "default": "Enterprise Project & Workflow Portal" },
+      "description": { "default": "Enterprise-grade SaaS-style Project & Workflow Management Portal with Projects, Tasks, Kanban, Documents, Approvals, Excel Bulk Upload, and Dynamic Configuration." },
+      "officeFabricIconFontName": "CRMProcesses",
+      "properties": {
+        "title": "Enterprise Project & Workflow Portal",
+        "description": "Enterprise Project Portal"
+      }
+    }
+  ]
+}

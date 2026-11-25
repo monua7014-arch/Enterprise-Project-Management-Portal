@@ -1,0 +1,20 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.18.2",
+    "sdksVersions": {
+      "@microsoft/sp-client-side-web-part": "1.18.2"
+    },
+    "version": "1.18.2",
+    "libraryName": "enterprise-project-portal",
+    "libraryId": "a8f3b251-87a2-4a09-90bc-3ef1a69b7341",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "enterprise-project-portal",
+    "solutionShortDescription": "Enterprise Project & Workflow Management Portal SPFx Solution",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
