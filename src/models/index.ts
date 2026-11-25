@@ -13,6 +13,20 @@ export type ApprovalStatus = 'Pending' | 'Approved' | 'Rejected';
 export type DocumentCategory = 'Requirements' | 'Architecture' | 'Design' | 'Contract' | 'Deliverable' | 'Meeting Notes' | 'Other';
 export type TeamRole = 'Project Manager' | 'Technical Lead' | 'Senior Developer' | 'Frontend Developer' | 'Backend Developer' | 'QA Engineer' | 'DevOps Engineer' | 'Business Analyst';
 
+export interface ISubTask {
+  id: string;
+  title: string;
+  isCompleted: boolean;
+}
+
+export interface ITaskComment {
+  id: string;
+  author: string;
+  avatar?: string;
+  text: string;
+  timestamp: string;
+}
+
 export interface IProjectItem {
   id: number;
   projectId: string; // e.g. "PRJ-101"
@@ -27,6 +41,8 @@ export interface IProjectItem {
   priority: PriorityLevel;
   progress: number; // 0 to 100
   assignedTeam: IUserRef[];
+  actualSpend?: number;
+  healthScore?: number; // 0 to 100
   created?: string;
   modified?: string;
 }
@@ -44,6 +60,9 @@ export interface ITaskItem {
   priority: PriorityLevel;
   status: TaskStatus;
   completionPercentage: number;
+  subtasks?: ISubTask[];
+  comments?: ITaskComment[];
+  dependencies?: number[]; // task IDs this task depends on
   created?: string;
   modified?: string;
 }
@@ -56,6 +75,34 @@ export interface IMilestoneItem {
   dueDate: string;
   status: 'Pending' | 'In Progress' | 'Completed';
   completedDate?: string;
+}
+
+export interface IRiskItem {
+  id: number;
+  projectId: number;
+  projectTitle?: string;
+  title: string;
+  description: string;
+  probability: 1 | 2 | 3 | 4 | 5; // 1 = Low, 5 = Critical
+  impact: 1 | 2 | 3 | 4 | 5; // 1 = Low, 5 = Critical
+  score: number; // probability * impact
+  status: 'Identified' | 'Analyzing' | 'Mitigating' | 'Accepted' | 'Closed';
+  category: 'Technical' | 'Schedule' | 'Budget' | 'Resource' | 'Security';
+  owner: string;
+  mitigationPlan: string;
+}
+
+export interface IFinancialMetric {
+  projectId: number;
+  projectTitle: string;
+  plannedValue: number; // PV
+  earnedValue: number; // EV
+  actualCost: number; // AC
+  costVariance: number; // CV = EV - AC
+  scheduleVariance: number; // SV = EV - PV
+  cpi: number; // Cost Performance Index = EV / AC
+  spi: number; // Schedule Performance Index = EV / PV
+  forecastedEAC: number; // Estimate at Completion
 }
 
 export interface IApprovalItem {
@@ -125,7 +172,6 @@ export interface IListMappingConfig {
   activityLogsList: string;
   notificationsList: string;
   powerAutomateWebhookUrl?: string;
-  // Field-level mappings (Logical property -> SharePoint column internal name)
   fieldMappings: {
     [entity: string]: {
       [logicalField: string]: string;
@@ -163,4 +209,6 @@ export interface IDashboardMetrics {
   pendingApprovals: number;
   totalBudget: number;
   averageProgress: number;
+  totalRisks?: number;
+  averageHealthScore?: number;
 }

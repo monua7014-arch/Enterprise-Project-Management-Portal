@@ -15,12 +15,16 @@ export type NavView =
   | 'dashboard' 
   | 'projects' 
   | 'project-detail'
+  | 'timeline'
   | 'tasks' 
   | 'kanban' 
   | 'excel' 
   | 'documents' 
   | 'approvals' 
   | 'team' 
+  | 'risks'
+  | 'financials'
+  | 'copilot'
   | 'reports' 
   | 'settings';
 

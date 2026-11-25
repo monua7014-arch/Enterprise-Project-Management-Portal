@@ -36,8 +36,12 @@ export const Header: React.FC = () => {
       case 'dashboard': return 'Executive Project Dashboard';
       case 'projects': return 'Project Portfolio Management';
       case 'project-detail': return 'Project Details & Milestones';
+      case 'timeline': return 'Interactive Gantt Schedule & Roadmap';
       case 'tasks': return 'Enterprise Task Management';
       case 'kanban': return 'Interactive Kanban Workflow';
+      case 'risks': return '5x5 Quantitative Risk Heatmap Matrix';
+      case 'financials': return 'EVM Financials & Budget Burn-Down';
+      case 'copilot': return 'AI Project Copilot & Delivery Intelligence';
       case 'excel': return 'Excel Bulk Import & Validation';
       case 'documents': return 'Document Management Library';
       case 'approvals': return 'Workflow Approval Center';

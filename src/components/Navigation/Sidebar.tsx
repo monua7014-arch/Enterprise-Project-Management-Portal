@@ -10,6 +10,7 @@ interface INavItem {
   label: string;
   iconName: string;
   badge?: number;
+  highlight?: boolean;
 }
 
 export const Sidebar: React.FC = () => {
@@ -24,14 +25,18 @@ export const Sidebar: React.FC = () => {
 
   const navItems: INavItem[] = [
     { key: 'dashboard', label: 'Executive Dashboard', iconName: 'ViewDashboard' },
-    { key: 'projects', label: 'Projects', iconName: 'ProjectDocument' },
-    { key: 'tasks', label: 'Task List', iconName: 'TaskGroup' },
+    { key: 'projects', label: 'Projects Portfolio', iconName: 'ProjectDocument' },
+    { key: 'timeline', label: 'Gantt & Roadmap', iconName: 'Timeline' },
+    { key: 'tasks', label: 'Task Management', iconName: 'TaskGroup' },
     { key: 'kanban', label: 'Kanban Board', iconName: 'Tiles' },
-    { key: 'excel', label: 'Excel Bulk Upload', iconName: 'ExcelLogo' },
-    { key: 'documents', label: 'Documents', iconName: 'FabricFolder' },
-    { key: 'approvals', label: 'Approvals', iconName: 'CheckList' },
-    { key: 'team', label: 'Team Allocation', iconName: 'People' },
-    { key: 'reports', label: 'Reports & Analytics', iconName: 'BarChartVertical' },
+    { key: 'risks', label: '5x5 Risk Heatmap', iconName: 'Warning12' },
+    { key: 'financials', label: 'EVM & Cost Tracking', iconName: 'Money' },
+    { key: 'copilot', label: 'AI Project Copilot', iconName: 'Sparkle', highlight: true },
+    { key: 'excel', label: 'Excel Bulk Ingestion', iconName: 'ExcelLogo' },
+    { key: 'documents', label: 'Documents Library', iconName: 'FabricFolder' },
+    { key: 'approvals', label: 'Approvals Hub', iconName: 'CheckList' },
+    { key: 'team', label: 'Team Capacity', iconName: 'People' },
+    { key: 'reports', label: 'Reports & Export', iconName: 'BarChartVertical' },
     { key: 'settings', label: 'Dynamic Configuration', iconName: 'Settings' }
   ];
 
@@ -106,8 +111,8 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Nav Menu */}
-      <nav style={{ flex: 1, padding: '16px 8px', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
           {navItems.map(item => {
             const isActive = activeView === item.key;
             const content = (
@@ -120,17 +125,23 @@ export const Sidebar: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                   gap: '12px',
-                  padding: sidebarCollapsed ? '10px 0' : '10px 14px',
+                  padding: sidebarCollapsed ? '10px 0' : '9px 12px',
                   borderRadius: '8px',
                   border: 'none',
                   outline: 'none',
                   cursor: 'pointer',
                   backgroundColor: isActive
                     ? 'rgba(0, 168, 232, 0.16)'
+                    : item.highlight
+                    ? 'rgba(139, 92, 246, 0.08)'
                     : 'transparent',
-                  color: isActive ? themeStyles.accentBlue : themeStyles.textSecondary,
-                  fontWeight: isActive ? 600 : 500,
-                  fontSize: '13.5px',
+                  color: isActive
+                    ? themeStyles.accentBlue
+                    : item.highlight
+                    ? '#a78bfa'
+                    : themeStyles.textSecondary,
+                  fontWeight: isActive ? 700 : item.highlight ? 600 : 500,
+                  fontSize: '13px',
                   transition: 'all 0.15s ease-in-out',
                   textAlign: 'left'
                 }}
@@ -142,16 +153,20 @@ export const Sidebar: React.FC = () => {
                 }}
                 onMouseLeave={e => {
                   if (!isActive) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = themeStyles.textSecondary;
+                    e.currentTarget.style.backgroundColor = item.highlight ? 'rgba(139, 92, 246, 0.08)' : 'transparent';
+                    e.currentTarget.style.color = item.highlight ? '#a78bfa' : themeStyles.textSecondary;
                   }
                 }}
               >
                 <i
                   className={`ms-Icon ms-Icon--${item.iconName}`}
                   style={{
-                    fontSize: '18px',
-                    color: isActive ? themeStyles.accentBlue : themeStyles.textSecondary,
+                    fontSize: '17px',
+                    color: isActive
+                      ? themeStyles.accentBlue
+                      : item.highlight
+                      ? '#a78bfa'
+                      : themeStyles.textSecondary,
                     minWidth: '20px',
                     textAlign: 'center'
                   }}
@@ -163,18 +178,18 @@ export const Sidebar: React.FC = () => {
                   </span>
                 )}
 
-                {!sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
+                {!sidebarCollapsed && item.highlight && (
                   <span
                     style={{
-                      backgroundColor: themeStyles.accentAmber,
-                      color: '#000',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      padding: '2px 7px',
-                      borderRadius: '10px'
+                      background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
+                      color: '#fff',
+                      fontSize: '9.5px',
+                      fontWeight: 800,
+                      padding: '1px 5px',
+                      borderRadius: '4px'
                     }}
                   >
-                    {item.badge}
+                    AI
                   </span>
                 )}
               </button>
@@ -196,27 +211,33 @@ export const Sidebar: React.FC = () => {
       {/* Footer / System Status */}
       <div
         style={{
-          padding: '16px',
+          padding: '14px 16px',
           borderTop: `1px solid ${themeStyles.border}`,
-          fontSize: '12px',
+          fontSize: '11px',
           color: themeStyles.textMuted
         }}
       >
         {!sidebarCollapsed ? (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-              <span
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: themeStyles.accentGreen,
-                  display: 'inline-block'
-                }}
-              />
-              <span style={{ fontWeight: 600, color: themeStyles.textPrimary }}>SharePoint Online</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span
+                  style={{
+                    width: '7px',
+                    height: '7px',
+                    borderRadius: '50%',
+                    backgroundColor: themeStyles.accentGreen,
+                    display: 'inline-block'
+                  }}
+                />
+                <span style={{ fontWeight: 600, color: themeStyles.textPrimary }}>SharePoint Online</span>
+              </div>
+              <span style={{ fontSize: '10px', color: themeStyles.accentBlue, fontWeight: 700 }}>SPFx 1.18.2</span>
             </div>
-            <div>SPFx 1.18.2 | React 17</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+              <span>Press <strong style={{ color: themeStyles.textPrimary }}>Ctrl + K</strong></span>
+              <span>Command Bar</span>
+            </div>
           </div>
         ) : (
           <div style={{ textAlign: 'center' }}>
@@ -228,7 +249,7 @@ export const Sidebar: React.FC = () => {
                 backgroundColor: themeStyles.accentGreen,
                 display: 'inline-block'
               }}
-              title="SharePoint Connected"
+              title="SharePoint Connected (Ctrl+K for commands)"
             />
           </div>
         )}

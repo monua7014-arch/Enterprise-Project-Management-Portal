@@ -4,9 +4,14 @@ import { AppProvider, useApp } from '../context/AppContext';
 import { darkNavyTheme, lightSaasTheme } from '../styles/theme';
 import { Sidebar } from './Navigation/Sidebar';
 import { Header } from './Navigation/Header';
+import { CommandPalette } from './Navigation/CommandPalette';
 import { ExecutiveDashboard } from './Dashboard/ExecutiveDashboard';
 import { ProjectList, ProjectDetail } from './Projects';
+import { GanttTimeline } from './Timeline';
 import { TaskList, KanbanBoard } from './Tasks';
+import { RiskMatrix } from './Risks';
+import { ProjectFinancials } from './Financials';
+import { ProjectCopilot } from './Copilot';
 import { ExcelBulkUpload } from './ExcelUpload';
 import { DocumentManager } from './Documents';
 import { ApprovalManager } from './Approvals';
@@ -30,10 +35,18 @@ const PortalMainContent: React.FC = () => {
         return <ProjectList />;
       case 'project-detail':
         return <ProjectDetail />;
+      case 'timeline':
+        return <GanttTimeline />;
       case 'tasks':
         return <TaskList />;
       case 'kanban':
         return <KanbanBoard />;
+      case 'risks':
+        return <RiskMatrix />;
+      case 'financials':
+        return <ProjectFinancials />;
+      case 'copilot':
+        return <ProjectCopilot />;
       case 'excel':
         return <ExcelBulkUpload />;
       case 'documents':
@@ -75,6 +88,9 @@ const PortalMainContent: React.FC = () => {
           {renderActiveView()}
         </main>
       </div>
+
+      {/* Global Command Palette (Ctrl + K) Spotlight */}
+      <CommandPalette />
     </div>
   );
 };

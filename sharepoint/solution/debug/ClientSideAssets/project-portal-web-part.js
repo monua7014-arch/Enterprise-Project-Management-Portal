@@ -8648,14 +8648,18 @@ var Sidebar = function () {
     var _a = Object(_context_AppContext__WEBPACK_IMPORTED_MODULE_1__[/* useApp */ "b"])(), activeView = _a.activeView, setActiveView = _a.setActiveView, sidebarCollapsed = _a.sidebarCollapsed, toggleSidebar = _a.toggleSidebar, themeStyles = _a.themeStyles, unreadNotificationCount = _a.unreadNotificationCount;
     var navItems = [
         { key: 'dashboard', label: 'Executive Dashboard', iconName: 'ViewDashboard' },
-        { key: 'projects', label: 'Projects', iconName: 'ProjectDocument' },
-        { key: 'tasks', label: 'Task List', iconName: 'TaskGroup' },
+        { key: 'projects', label: 'Projects Portfolio', iconName: 'ProjectDocument' },
+        { key: 'timeline', label: 'Gantt & Roadmap', iconName: 'Timeline' },
+        { key: 'tasks', label: 'Task Management', iconName: 'TaskGroup' },
         { key: 'kanban', label: 'Kanban Board', iconName: 'Tiles' },
-        { key: 'excel', label: 'Excel Bulk Upload', iconName: 'ExcelLogo' },
-        { key: 'documents', label: 'Documents', iconName: 'FabricFolder' },
-        { key: 'approvals', label: 'Approvals', iconName: 'CheckList' },
-        { key: 'team', label: 'Team Allocation', iconName: 'People' },
-        { key: 'reports', label: 'Reports & Analytics', iconName: 'BarChartVertical' },
+        { key: 'risks', label: '5x5 Risk Heatmap', iconName: 'Warning12' },
+        { key: 'financials', label: 'EVM & Cost Tracking', iconName: 'Money' },
+        { key: 'copilot', label: 'AI Project Copilot', iconName: 'Sparkle', highlight: true },
+        { key: 'excel', label: 'Excel Bulk Ingestion', iconName: 'ExcelLogo' },
+        { key: 'documents', label: 'Documents Library', iconName: 'FabricFolder' },
+        { key: 'approvals', label: 'Approvals Hub', iconName: 'CheckList' },
+        { key: 'team', label: 'Team Capacity', iconName: 'People' },
+        { key: 'reports', label: 'Reports & Export', iconName: 'BarChartVertical' },
         { key: 'settings', label: 'Dynamic Configuration', iconName: 'Settings' }
     ];
     return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("aside", { style: {
@@ -8701,8 +8705,8 @@ var Sidebar = function () {
                         ':hover': { color: themeStyles.textPrimary, backgroundColor: themeStyles.bgCardHover }
                     }
                 } })),
-        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("nav", { style: { flex: 1, padding: '16px 8px', overflowY: 'auto' } },
-            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, navItems.map(function (item) {
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("nav", { style: { flex: 1, padding: '12px 8px', overflowY: 'auto' } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', flexDirection: 'column', gap: '3px' } }, navItems.map(function (item) {
                 var isActive = activeView === item.key;
                 var content = (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { key: item.key, onClick: function () { return setActiveView(item.key); }, style: {
                         width: '100%',
@@ -8710,17 +8714,23 @@ var Sidebar = function () {
                         alignItems: 'center',
                         justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                         gap: '12px',
-                        padding: sidebarCollapsed ? '10px 0' : '10px 14px',
+                        padding: sidebarCollapsed ? '10px 0' : '9px 12px',
                         borderRadius: '8px',
                         border: 'none',
                         outline: 'none',
                         cursor: 'pointer',
                         backgroundColor: isActive
                             ? 'rgba(0, 168, 232, 0.16)'
-                            : 'transparent',
-                        color: isActive ? themeStyles.accentBlue : themeStyles.textSecondary,
-                        fontWeight: isActive ? 600 : 500,
-                        fontSize: '13.5px',
+                            : item.highlight
+                                ? 'rgba(139, 92, 246, 0.08)'
+                                : 'transparent',
+                        color: isActive
+                            ? themeStyles.accentBlue
+                            : item.highlight
+                                ? '#a78bfa'
+                                : themeStyles.textSecondary,
+                        fontWeight: isActive ? 700 : item.highlight ? 600 : 500,
+                        fontSize: '13px',
                         transition: 'all 0.15s ease-in-out',
                         textAlign: 'left'
                     }, onMouseEnter: function (e) {
@@ -8730,53 +8740,63 @@ var Sidebar = function () {
                         }
                     }, onMouseLeave: function (e) {
                         if (!isActive) {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                            e.currentTarget.style.color = themeStyles.textSecondary;
+                            e.currentTarget.style.backgroundColor = item.highlight ? 'rgba(139, 92, 246, 0.08)' : 'transparent';
+                            e.currentTarget.style.color = item.highlight ? '#a78bfa' : themeStyles.textSecondary;
                         }
                     } },
                     react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("i", { className: "ms-Icon ms-Icon--".concat(item.iconName), style: {
-                            fontSize: '18px',
-                            color: isActive ? themeStyles.accentBlue : themeStyles.textSecondary,
+                            fontSize: '17px',
+                            color: isActive
+                                ? themeStyles.accentBlue
+                                : item.highlight
+                                    ? '#a78bfa'
+                                    : themeStyles.textSecondary,
                             minWidth: '20px',
                             textAlign: 'center'
                         } }),
                     !sidebarCollapsed && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, item.label)),
-                    !sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
-                            backgroundColor: themeStyles.accentAmber,
-                            color: '#000',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            padding: '2px 7px',
-                            borderRadius: '10px'
-                        } }, item.badge))));
+                    !sidebarCollapsed && item.highlight && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                            background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
+                            color: '#fff',
+                            fontSize: '9.5px',
+                            fontWeight: 800,
+                            padding: '1px 5px',
+                            borderRadius: '4px'
+                        } }, "AI"))));
                 if (sidebarCollapsed) {
                     return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_3__[/* TooltipHost */ "a"], { key: item.key, content: item.label, delay: 0 }, content));
                 }
                 return content;
             }))),
         react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
-                padding: '16px',
+                padding: '14px 16px',
                 borderTop: "1px solid ".concat(themeStyles.border),
-                fontSize: '12px',
+                fontSize: '11px',
                 color: themeStyles.textMuted
             } }, !sidebarCollapsed ? (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
-            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' } },
-                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        backgroundColor: themeStyles.accentGreen,
-                        display: 'inline-block'
-                    } }),
-                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontWeight: 600, color: themeStyles.textPrimary } }, "SharePoint Online")),
-            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null, "SPFx 1.18.2 | React 17"))) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { textAlign: 'center' } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                            width: '7px',
+                            height: '7px',
+                            borderRadius: '50%',
+                            backgroundColor: themeStyles.accentGreen,
+                            display: 'inline-block'
+                        } }),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontWeight: 600, color: themeStyles.textPrimary } }, "SharePoint Online")),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '10px', color: themeStyles.accentBlue, fontWeight: 700 } }, "SPFx 1.18.2")),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", null,
+                    "Press ",
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("strong", { style: { color: themeStyles.textPrimary } }, "Ctrl + K")),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", null, "Command Bar")))) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { textAlign: 'center' } },
             react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
                     width: '8px',
                     height: '8px',
                     borderRadius: '50%',
                     backgroundColor: themeStyles.accentGreen,
                     display: 'inline-block'
-                }, title: "SharePoint Connected" }))))));
+                }, title: "SharePoint Connected (Ctrl+K for commands)" }))))));
 };
 
 
@@ -10854,7 +10874,7 @@ var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from
 
 var TaskService = /** @class */ (function () {
     function TaskService() {
-        this.memoryTasks = __spreadArray([], _MockData__WEBPACK_IMPORTED_MODULE_1__[/* INITIAL_TASKS */ "f"], true);
+        this.memoryTasks = __spreadArray([], _MockData__WEBPACK_IMPORTED_MODULE_1__[/* INITIAL_TASKS */ "h"], true);
     }
     TaskService.getInstance = function () {
         if (!TaskService.instance) {
@@ -15791,6 +15811,341 @@ var Popup = react__WEBPACK_IMPORTED_MODULE_1__["forwardRef"](function (propsWith
 });
 Popup.displayName = 'Popup';
 //# sourceMappingURL=Popup.js.map
+
+/***/ }),
+
+/***/ "HxDx":
+/*!********************************************!*\
+  !*** ./lib/components/Financials/index.js ***!
+  \********************************************/
+/*! exports provided: ProjectFinancials */
+/*! exports used: ProjectFinancials */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _ProjectFinancials__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ProjectFinancials */ "nvRj");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _ProjectFinancials__WEBPACK_IMPORTED_MODULE_0__["a"]; });
+
+
+
+
+/***/ }),
+
+/***/ "HzNM":
+/*!**************************************************!*\
+  !*** ./lib/components/Timeline/GanttTimeline.js ***!
+  \**************************************************/
+/*! exports provided: GanttTimeline */
+/*! exports used: GanttTimeline */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return GanttTimeline; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "cDcd");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _context_AppContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../context/AppContext */ "h4Z2");
+/* harmony import */ var _services__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../services */ "vB0i");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @fluentui/react */ "+onJ");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @fluentui/react */ "5JhY");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @fluentui/react */ "oR7b");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+
+
+
+
+var GanttTimeline = function () {
+    var _a = Object(_context_AppContext__WEBPACK_IMPORTED_MODULE_1__[/* useApp */ "b"])(), config = _a.config, themeStyles = _a.themeStyles, refreshTrigger = _a.refreshTrigger, setSelectedProjectId = _a.setSelectedProjectId, setActiveView = _a.setActiveView;
+    var _b = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(true), loading = _b[0], setLoading = _b[1];
+    var _c = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), projects = _c[0], setProjects = _c[1];
+    var _d = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), tasks = _d[0], setTasks = _d[1];
+    var _e = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), milestones = _e[0], setMilestones = _e[1];
+    var _f = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])('All'), selectedProjectIdFilter = _f[0], setSelectedProjectIdFilter = _f[1];
+    var _g = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])('Monthly'), timescale = _g[0], setTimescale = _g[1];
+    Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+        loadData();
+    }, [config, refreshTrigger]);
+    var loadData = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var pList, tList, allMilestones, _i, pList_1, p, m, err_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    setLoading(true);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 8, 9, 10]);
+                    return [4 /*yield*/, _services__WEBPACK_IMPORTED_MODULE_2__[/* ProjectService */ "d"].getInstance().getProjects(config)];
+                case 2:
+                    pList = _a.sent();
+                    return [4 /*yield*/, _services__WEBPACK_IMPORTED_MODULE_2__[/* TaskService */ "g"].getInstance().getTasks(config)];
+                case 3:
+                    tList = _a.sent();
+                    allMilestones = [];
+                    _i = 0, pList_1 = pList;
+                    _a.label = 4;
+                case 4:
+                    if (!(_i < pList_1.length)) return [3 /*break*/, 7];
+                    p = pList_1[_i];
+                    return [4 /*yield*/, _services__WEBPACK_IMPORTED_MODULE_2__[/* ProjectService */ "d"].getInstance().getMilestones(p.id, config)];
+                case 5:
+                    m = _a.sent();
+                    allMilestones = allMilestones.concat(m);
+                    _a.label = 6;
+                case 6:
+                    _i++;
+                    return [3 /*break*/, 4];
+                case 7:
+                    setProjects(pList);
+                    setTasks(tList);
+                    setMilestones(allMilestones);
+                    return [3 /*break*/, 10];
+                case 8:
+                    err_1 = _a.sent();
+                    console.error('[GanttTimeline] Error loading timeline data:', err_1);
+                    return [3 /*break*/, 10];
+                case 9:
+                    setLoading(false);
+                    return [7 /*endfinally*/];
+                case 10: return [2 /*return*/];
+            }
+        });
+    }); };
+    // Timeline Date Range: Jan 2026 to Dec 2026
+    var timelineStart = new Date('2026-01-01T00:00:00Z').getTime();
+    var timelineEnd = new Date('2026-12-31T23:59:59Z').getTime();
+    var totalDuration = timelineEnd - timelineStart;
+    var months = [
+        'Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026', 'May 2026', 'Jun 2026',
+        'Jul 2026', 'Aug 2026', 'Sep 2026', 'Oct 2026', 'Nov 2026', 'Dec 2026'
+    ];
+    var filteredProjects = Object(react__WEBPACK_IMPORTED_MODULE_0__["useMemo"])(function () {
+        if (selectedProjectIdFilter === 'All')
+            return projects;
+        return projects.filter(function (p) { return String(p.id) === selectedProjectIdFilter; });
+    }, [projects, selectedProjectIdFilter]);
+    var getPositionPercent = function (dateStr) {
+        var time = new Date(dateStr).getTime();
+        var clamped = Math.max(timelineStart, Math.min(timelineEnd, time));
+        return ((clamped - timelineStart) / totalDuration) * 100;
+    };
+    var getBarMetrics = function (startDate, endDate) {
+        var left = getPositionPercent(startDate);
+        var right = getPositionPercent(endDate);
+        var width = Math.max(right - left, 1.5);
+        return { left: "".concat(left, "%"), width: "".concat(width, "%") };
+    };
+    // Current day position marker
+    var todayLeft = "".concat(getPositionPercent(new Date().toISOString()), "%");
+    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '32px' } },
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '14px',
+                padding: '20px 24px',
+                backgroundColor: themeStyles.bgCard,
+                border: "1px solid ".concat(themeStyles.border),
+                borderRadius: '12px'
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h2", { style: { margin: 0, fontSize: '18px', fontWeight: 700, color: themeStyles.textPrimary } }, "Enterprise Interactive Gantt Schedule & Delivery Roadmap"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '13px', color: themeStyles.textSecondary, marginTop: '4px' } }, "Multi-year milestone schedule with critical path indicators, delivery progress fills, and timeline dependencies.")),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', gap: '12px', alignItems: 'center' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { width: '200px' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_3__[/* Dropdown */ "a"], { selectedKey: selectedProjectIdFilter, options: __spreadArray([
+                            { key: 'All', text: 'All Enterprise Projects' }
+                        ], projects.map(function (p) { return ({ key: String(p.id), text: p.title }); }), true), onChange: function (_, opt) { return opt && setSelectedProjectIdFilter(String(opt.key)); }, styles: { root: { borderRadius: '6px' } } })),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', gap: '4px', backgroundColor: themeStyles.bgCardHover, padding: '3px', borderRadius: '6px' } }, ['Monthly', 'Quarterly'].map(function (t) { return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { key: t, onClick: function () { return setTimescale(t); }, style: {
+                        padding: '5px 12px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        backgroundColor: timescale === t ? themeStyles.accentBlue : 'transparent',
+                        color: timescale === t ? '#fff' : themeStyles.textSecondary
+                    } }, t)); })))),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                backgroundColor: themeStyles.bgCard,
+                border: "1px solid ".concat(themeStyles.border),
+                borderRadius: '12px',
+                overflowX: 'auto',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
+            } }, loading ? (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '60px', textAlign: 'center' } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_4__[/* Spinner */ "a"], { size: _fluentui_react__WEBPACK_IMPORTED_MODULE_5__[/* SpinnerSize */ "a"].large, label: "Compiling interactive Gantt timeline..." }))) : (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { minWidth: '980px', padding: '20px' } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', borderBottom: "1px solid ".concat(themeStyles.border), paddingBottom: '10px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { width: '280px', flexShrink: 0, fontWeight: 700, fontSize: '13px', color: themeStyles.textSecondary } }, "Project & Work Items"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { flex: 1, display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', textAlign: 'center', fontSize: '12px', color: themeStyles.textMuted, fontWeight: 600 } }, months.map(function (m) { return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: m, style: { borderLeft: "1px solid ".concat(themeStyles.borderLight), padding: '4px 0' } }, m.split(' ')[0])); }))),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { position: 'relative', display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        left: "calc(280px + (100% - 280px) * ".concat(parseFloat(todayLeft) / 100, ")"),
+                        width: '2px',
+                        backgroundColor: themeStyles.accentRed,
+                        zIndex: 4,
+                        pointerEvents: 'none'
+                    }, title: "Current Date" },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                            position: 'absolute',
+                            top: '-18px',
+                            left: '-22px',
+                            backgroundColor: themeStyles.accentRed,
+                            color: '#fff',
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            padding: '1px 5px',
+                            borderRadius: '3px'
+                        } }, "TODAY")),
+                filteredProjects.map(function (p) {
+                    var pMetrics = getBarMetrics(p.startDate, p.endDate);
+                    var projectTasks = tasks.filter(function (t) { return t.projectId === p.id; });
+                    var projectMilestones = milestones.filter(function (m) { return m.projectId === p.id; });
+                    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: p.id, style: { display: 'flex', flexDirection: 'column', gap: '8px', paddingBottom: '12px', borderBottom: "1px solid ".concat(themeStyles.borderLight) } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', alignItems: 'center' } },
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { width: '280px', flexShrink: 0, paddingRight: '12px' } },
+                                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { onClick: function () {
+                                        setSelectedProjectId(p.id);
+                                        setActiveView('project-detail');
+                                    }, style: {
+                                        fontWeight: 700,
+                                        fontSize: '13.5px',
+                                        color: themeStyles.textPrimary,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    } },
+                                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '11px', color: themeStyles.accentBlue } }, p.projectId),
+                                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, p.title)),
+                                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '11px', color: themeStyles.textMuted } },
+                                    new Date(p.startDate).toLocaleDateString([], { month: 'short', day: 'numeric' }),
+                                    " \u2013 ",
+                                    new Date(p.endDate).toLocaleDateString([], { month: 'short', day: 'numeric' }))),
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { flex: 1, position: 'relative', height: '28px', backgroundColor: "".concat(themeStyles.bgCardHover, "88"), borderRadius: '6px' } },
+                                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                                        position: 'absolute',
+                                        left: pMetrics.left,
+                                        width: pMetrics.width,
+                                        height: '100%',
+                                        backgroundColor: 'rgba(0, 168, 232, 0.25)',
+                                        border: "1px solid ".concat(themeStyles.accentBlue),
+                                        borderRadius: '6px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        overflow: 'hidden',
+                                        boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                                    } },
+                                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                                            height: '100%',
+                                            width: "".concat(p.progress, "%"),
+                                            background: 'linear-gradient(90deg, #0077b6 0%, #00a8e8 100%)',
+                                            borderRadius: '4px'
+                                        } }),
+                                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                                            position: 'absolute',
+                                            left: '8px',
+                                            fontSize: '11px',
+                                            fontWeight: 700,
+                                            color: '#fff',
+                                            textShadow: '0 1px 2px rgba(0,0,0,0.8)'
+                                        } },
+                                        p.progress,
+                                        "%")),
+                                projectMilestones.map(function (m) {
+                                    var mPos = "".concat(getPositionPercent(m.dueDate), "%");
+                                    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: m.id, style: {
+                                            position: 'absolute',
+                                            left: mPos,
+                                            top: '5px',
+                                            width: '16px',
+                                            height: '16px',
+                                            backgroundColor: m.status === 'Completed' ? themeStyles.accentGreen : themeStyles.accentAmber,
+                                            transform: 'rotate(45deg)',
+                                            zIndex: 3,
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                                            cursor: 'pointer'
+                                        }, title: "Milestone: ".concat(m.title, " (").concat(m.status, ")") }));
+                                }))),
+                        projectTasks.map(function (t) {
+                            var _a;
+                            var tMetrics = getBarMetrics(t.startDate, t.dueDate);
+                            var isComplete = t.status === 'Completed';
+                            return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: t.id, style: { display: 'flex', alignItems: 'center', opacity: 0.9 } },
+                                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { width: '280px', flexShrink: 0, paddingLeft: '18px', paddingRight: '12px' } },
+                                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '12px', fontWeight: 600, color: themeStyles.textSecondary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } },
+                                        "\u21B3 ",
+                                        t.title),
+                                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '10.5px', color: themeStyles.textMuted } },
+                                        "Assignee: ",
+                                        ((_a = t.assignedTo) === null || _a === void 0 ? void 0 : _a.title) || 'Unassigned')),
+                                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { flex: 1, position: 'relative', height: '18px' } },
+                                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                                            position: 'absolute',
+                                            left: tMetrics.left,
+                                            width: tMetrics.width,
+                                            height: '100%',
+                                            backgroundColor: isComplete ? 'rgba(16, 185, 129, 0.25)' : 'rgba(245, 158, 11, 0.25)',
+                                            border: "1px solid ".concat(isComplete ? themeStyles.accentGreen : themeStyles.accentAmber),
+                                            borderRadius: '4px',
+                                            overflow: 'hidden'
+                                        } },
+                                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                                                height: '100%',
+                                                width: "".concat(t.completionPercentage, "%"),
+                                                backgroundColor: isComplete ? themeStyles.accentGreen : themeStyles.accentAmber,
+                                                borderRadius: '3px'
+                                            } })))));
+                        })));
+                })))))));
+};
+
 
 /***/ }),
 
@@ -42166,6 +42521,291 @@ var getStyles = function (props) {
 
 /***/ }),
 
+/***/ "KCuG":
+/*!*****************************************************!*\
+  !*** ./lib/components/Navigation/CommandPalette.js ***!
+  \*****************************************************/
+/*! exports provided: CommandPalette */
+/*! exports used: CommandPalette */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return CommandPalette; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "cDcd");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _context_AppContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../context/AppContext */ "h4Z2");
+/* harmony import */ var _services__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../services */ "vB0i");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @fluentui/react */ "ANYR");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+
+
+
+
+var CommandPalette = function () {
+    var _a = Object(_context_AppContext__WEBPACK_IMPORTED_MODULE_1__[/* useApp */ "b"])(), themeStyles = _a.themeStyles, setActiveView = _a.setActiveView, setSelectedProjectId = _a.setSelectedProjectId, config = _a.config, toggleTheme = _a.toggleTheme;
+    var _b = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false), isOpen = _b[0], setIsOpen = _b[1];
+    var _c = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(''), query = _c[0], setQuery = _c[1];
+    var _d = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), projects = _d[0], setProjects = _d[1];
+    var _e = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), tasks = _e[0], setTasks = _e[1];
+    var _f = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(0), selectedIndex = _f[0], setSelectedIndex = _f[1];
+    // Global Ctrl+K / Cmd+K key listener
+    Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+        var handleKeyDown = function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                setIsOpen(function (prev) { return !prev; });
+            }
+            else if (e.key === 'Escape') {
+                setIsOpen(false);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return function () { return window.removeEventListener('keydown', handleKeyDown); };
+    }, []);
+    Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+        if (isOpen) {
+            loadEntities();
+            setQuery('');
+            setSelectedIndex(0);
+        }
+    }, [isOpen]);
+    var loadEntities = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var _a, pList, tList, err_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, Promise.all([
+                            _services__WEBPACK_IMPORTED_MODULE_2__[/* ProjectService */ "d"].getInstance().getProjects(config),
+                            _services__WEBPACK_IMPORTED_MODULE_2__[/* TaskService */ "g"].getInstance().getTasks(config)
+                        ])];
+                case 1:
+                    _a = _b.sent(), pList = _a[0], tList = _a[1];
+                    setProjects(pList);
+                    setTasks(tList);
+                    return [3 /*break*/, 3];
+                case 2:
+                    err_1 = _b.sent();
+                    console.error('[CommandPalette] Error loading entities:', err_1);
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    }); };
+    var navActions = [
+        { id: 'nav-dash', category: 'Navigation', title: 'Go to Executive Dashboard', subtitle: 'Portfolio KPIs and charts', icon: 'ViewDashboard', action: function () { setActiveView('dashboard'); setIsOpen(false); } },
+        { id: 'nav-proj', category: 'Navigation', title: 'Go to Projects Portfolio', subtitle: 'Full project portfolio management', icon: 'ProjectDocument', action: function () { setActiveView('projects'); setIsOpen(false); } },
+        { id: 'nav-gantt', category: 'Navigation', title: 'Go to Gantt Schedule & Timeline', subtitle: 'Roadmap delivery milestones', icon: 'Timeline', action: function () { setActiveView('timeline'); setIsOpen(false); } },
+        { id: 'nav-kanban', category: 'Navigation', title: 'Go to Interactive Kanban Board', subtitle: 'Drag & drop task workflow', icon: 'Tiles', action: function () { setActiveView('kanban'); setIsOpen(false); } },
+        { id: 'nav-tasks', category: 'Navigation', title: 'Go to Tasks Management', subtitle: 'Work item breakdown', icon: 'TaskGroup', action: function () { setActiveView('tasks'); setIsOpen(false); } },
+        { id: 'nav-copilot', category: 'Navigation', title: 'Open AI Project Copilot', subtitle: 'AI WBS generator & chat intelligence', icon: 'Sparkle', action: function () { setActiveView('copilot'); setIsOpen(false); } },
+        { id: 'nav-risks', category: 'Navigation', title: 'Go to 5x5 Risk Heatmap Matrix', subtitle: 'Quantitative risk modeling', icon: 'Warning12', action: function () { setActiveView('risks'); setIsOpen(false); } },
+        { id: 'nav-financials', category: 'Navigation', title: 'Go to EVM Financials & Burn-Down', subtitle: 'CPI, SPI, and cost tracking', icon: 'Money', action: function () { setActiveView('financials'); setIsOpen(false); } },
+        { id: 'nav-excel', category: 'Navigation', title: 'Go to Excel Bulk Upload', subtitle: 'Ingest spreadsheets with validation', icon: 'ExcelLogo', action: function () { setActiveView('excel'); setIsOpen(false); } },
+        { id: 'nav-docs', category: 'Navigation', title: 'Go to Document Library', subtitle: 'SharePoint project documents', icon: 'FabricFolder', action: function () { setActiveView('documents'); setIsOpen(false); } },
+        { id: 'nav-appr', category: 'Navigation', title: 'Go to Governance & Approvals', subtitle: 'Review pending changes', icon: 'CheckList', action: function () { setActiveView('approvals'); setIsOpen(false); } },
+        { id: 'nav-team', category: 'Navigation', title: 'Go to Team Allocation & Capacity', subtitle: 'Squad workload breakdown', icon: 'People', action: function () { setActiveView('team'); setIsOpen(false); } },
+        { id: 'nav-rep', category: 'Navigation', title: 'Go to Reports & Analytics', subtitle: 'Excel and print export', icon: 'BarChartVertical', action: function () { setActiveView('reports'); setIsOpen(false); } },
+        { id: 'nav-set', category: 'Navigation', title: 'Go to Dynamic Schema Configuration', subtitle: 'Map SharePoint lists dynamically', icon: 'Settings', action: function () { setActiveView('settings'); setIsOpen(false); } },
+        { id: 'act-theme', category: 'Action', title: 'Toggle Dark / Light Theme Mode', subtitle: 'Switch color theme', icon: 'Sunny', action: function () { toggleTheme(); setIsOpen(false); } }
+    ];
+    var projectActions = projects.map(function (p) { return ({
+        id: "p-".concat(p.id),
+        category: 'Project',
+        title: "".concat(p.projectId, ": ").concat(p.title),
+        subtitle: "Client: ".concat(p.clientName, " \u2022 Budget: $").concat(p.budget.toLocaleString()),
+        icon: 'ProjectDocument',
+        action: function () {
+            setSelectedProjectId(p.id);
+            setActiveView('project-detail');
+            setIsOpen(false);
+        }
+    }); });
+    var taskActions = tasks.map(function (t) { return ({
+        id: "t-".concat(t.id),
+        category: 'Task',
+        title: "".concat(t.taskId, ": ").concat(t.title),
+        subtitle: "Project #".concat(t.projectId, " \u2022 Status: ").concat(t.status),
+        icon: 'TaskGroup',
+        action: function () {
+            setActiveView('kanban');
+            setIsOpen(false);
+        }
+    }); });
+    var allItems = Object(react__WEBPACK_IMPORTED_MODULE_0__["useMemo"])(function () {
+        return __spreadArray(__spreadArray(__spreadArray([], navActions, true), projectActions, true), taskActions, true);
+    }, [projects, tasks]);
+    var filteredItems = Object(react__WEBPACK_IMPORTED_MODULE_0__["useMemo"])(function () {
+        if (!query.trim())
+            return allItems.slice(0, 8);
+        var q = query.toLowerCase();
+        return allItems.filter(function (item) {
+            return item.title.toLowerCase().includes(q) ||
+                (item.subtitle && item.subtitle.toLowerCase().includes(q)) ||
+                item.category.toLowerCase().includes(q);
+        }).slice(0, 10);
+    }, [allItems, query]);
+    var handleKeyDownInInput = function (e) {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setSelectedIndex(function (prev) { return (prev + 1) % (filteredItems.length || 1); });
+        }
+        else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setSelectedIndex(function (prev) { return (prev - 1 + filteredItems.length) % (filteredItems.length || 1); });
+        }
+        else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (filteredItems[selectedIndex]) {
+                filteredItems[selectedIndex].action();
+            }
+        }
+    };
+    if (!isOpen)
+        return null;
+    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_3__[/* Modal */ "a"], { isOpen: isOpen, onDismiss: function () { return setIsOpen(false); }, styles: {
+            main: {
+                width: '620px',
+                maxWidth: '92vw',
+                backgroundColor: themeStyles.bgCard,
+                border: "1px solid ".concat(themeStyles.border),
+                borderRadius: '12px',
+                boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
+                overflow: 'hidden',
+                top: '15%'
+            }
+        } },
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '16px 20px',
+                borderBottom: "1px solid ".concat(themeStyles.border),
+                backgroundColor: themeStyles.bgCardHover
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("i", { className: "ms-Icon ms-Icon--Search", style: { fontSize: '18px', color: themeStyles.accentBlue } }),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("input", { autoFocus: true, placeholder: "Search commands, projects, tasks, or jump to view... (Press Esc to close)", value: query, onChange: function (e) {
+                    setQuery(e.target.value);
+                    setSelectedIndex(0);
+                }, onKeyDown: handleKeyDownInInput, style: {
+                    flex: 1,
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    fontSize: '15px',
+                    color: themeStyles.textPrimary,
+                    fontFamily: 'inherit'
+                } }),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                    fontSize: '11px',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    backgroundColor: themeStyles.bgCard,
+                    border: "1px solid ".concat(themeStyles.border),
+                    color: themeStyles.textMuted
+                } }, "ESC")),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { maxHeight: '380px', overflowY: 'auto', padding: '8px' } }, filteredItems.length === 0 ? (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '24px', textAlign: 'center', color: themeStyles.textMuted, fontSize: '13px' } },
+            "No commands or entities match \"",
+            query,
+            "\"")) : (filteredItems.map(function (item, idx) {
+            var isSelected = selectedIndex === idx;
+            return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: item.id, onClick: item.action, onMouseEnter: function () { return setSelectedIndex(idx); }, style: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    backgroundColor: isSelected ? 'rgba(0, 168, 232, 0.15)' : 'transparent',
+                    color: isSelected ? themeStyles.accentBlue : themeStyles.textPrimary,
+                    transition: 'background-color 0.1s ease'
+                } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("i", { className: "ms-Icon ms-Icon--".concat(item.icon), style: { fontSize: '18px', color: isSelected ? themeStyles.accentBlue : themeStyles.textSecondary } }),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '13.5px', fontWeight: 600 } }, item.title),
+                        item.subtitle && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '11px', color: themeStyles.textMuted } }, item.subtitle)))),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                        fontSize: '10.5px',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        backgroundColor: themeStyles.bgCardHover,
+                        color: themeStyles.textMuted,
+                        textTransform: 'uppercase'
+                    } }, item.category)));
+        }))),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                padding: '10px 18px',
+                borderTop: "1px solid ".concat(themeStyles.border),
+                backgroundColor: themeStyles.bgCardHover,
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '11px',
+                color: themeStyles.textMuted
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", null,
+                "Use ",
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("strong", null, "\u2191"),
+                " ",
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("strong", null, "\u2193"),
+                " to navigate, ",
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("strong", null, "Enter"),
+                " to select"),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", null,
+                "Press ",
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("strong", null, "Ctrl + K"),
+                " anywhere to toggle"))));
+};
+
+
+/***/ }),
+
 /***/ "KCyg":
 /*!**************************************************************************!*\
   !*** ./node_modules/@fluentui/react/lib/components/Panel/Panel.types.js ***!
@@ -44025,6 +44665,23 @@ function _loadFonts(theme) {
 
 /***/ }),
 
+/***/ "L6PQ":
+/*!*****************************************!*\
+  !*** ./lib/components/Copilot/index.js ***!
+  \*****************************************/
+/*! exports provided: ProjectCopilot */
+/*! exports used: ProjectCopilot */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _ProjectCopilot__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ProjectCopilot */ "N0R4");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _ProjectCopilot__WEBPACK_IMPORTED_MODULE_0__["a"]; });
+
+
+
+
+/***/ }),
+
 /***/ "LBWr":
 /*!***************************************************************!*\
   !*** ./node_modules/@fluentui/utilities/lib/BaseComponent.js ***!
@@ -45228,6 +45885,385 @@ var VerticalDividerBase = react__WEBPACK_IMPORTED_MODULE_0__["forwardRef"](funct
 });
 VerticalDividerBase.displayName = 'VerticalDividerBase';
 //# sourceMappingURL=VerticalDivider.base.js.map
+
+/***/ }),
+
+/***/ "N0R4":
+/*!**************************************************!*\
+  !*** ./lib/components/Copilot/ProjectCopilot.js ***!
+  \**************************************************/
+/*! exports provided: ProjectCopilot */
+/*! exports used: ProjectCopilot */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ProjectCopilot; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "cDcd");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _context_AppContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../context/AppContext */ "h4Z2");
+/* harmony import */ var _services__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../services */ "vB0i");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @fluentui/react */ "+onJ");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @fluentui/react */ "AR7i");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @fluentui/react */ "JLNM");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+
+
+
+
+var ProjectCopilot = function () {
+    var _a = Object(_context_AppContext__WEBPACK_IMPORTED_MODULE_1__[/* useApp */ "b"])(), config = _a.config, themeStyles = _a.themeStyles, showToast = _a.showToast, triggerRefresh = _a.triggerRefresh;
+    var _b = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(true), loading = _b[0], setLoading = _b[1];
+    var _c = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), projects = _c[0], setProjects = _c[1];
+    var _d = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), tasks = _d[0], setTasks = _d[1];
+    var _e = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(1), selectedProjectId = _e[0], setSelectedProjectId = _e[1];
+    // WBS Generation State
+    var _f = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])('Establish Disaster Recovery failover drill for secondary Azure region'), promptGoal = _f[0], setPromptGoal = _f[1];
+    var _g = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false), generating = _g[0], setGenerating = _g[1];
+    var _h = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), generatedTasks = _h[0], setGeneratedTasks = _h[1];
+    // Q&A Chat State
+    var _j = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(''), chatInput = _j[0], setChatInput = _j[1];
+    var _k = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([
+        {
+            sender: 'copilot',
+            text: 'Hello Alex! I am your Enterprise Project Copilot. I continuously monitor SharePoint project schedules, budget burn rates, and delivery risks. How can I assist your portfolio today?',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+    ]), chatHistory = _k[0], setChatHistory = _k[1];
+    Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+        loadData();
+    }, [config]);
+    var loadData = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var _a, pList, tList, err_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    setLoading(true);
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, 4, 5]);
+                    return [4 /*yield*/, Promise.all([
+                            _services__WEBPACK_IMPORTED_MODULE_2__[/* ProjectService */ "d"].getInstance().getProjects(config),
+                            _services__WEBPACK_IMPORTED_MODULE_2__[/* TaskService */ "g"].getInstance().getTasks(config)
+                        ])];
+                case 2:
+                    _a = _b.sent(), pList = _a[0], tList = _a[1];
+                    setProjects(pList);
+                    setTasks(tList);
+                    if (pList.length > 0)
+                        setSelectedProjectId(pList[0].id);
+                    return [3 /*break*/, 5];
+                case 3:
+                    err_1 = _b.sent();
+                    console.error('[ProjectCopilot] Error loading data:', err_1);
+                    return [3 /*break*/, 5];
+                case 4:
+                    setLoading(false);
+                    return [7 /*endfinally*/];
+                case 5: return [2 /*return*/];
+            }
+        });
+    }); };
+    var handleGenerateWBS = function () {
+        if (!promptGoal.trim())
+            return;
+        setGenerating(true);
+        setTimeout(function () {
+            // Intelligent rule-based WBS generator
+            var clean = promptGoal.toLowerCase();
+            var suggestions = [];
+            if (clean.includes('disaster') || clean.includes('recovery') || clean.includes('failover')) {
+                suggestions = [
+                    { title: 'Define RTO/RPO Recovery Objectives & SLA Runbook', description: 'Document business continuity targets with compliance auditors.', priority: 'High', estimatedDays: 4 },
+                    { title: 'Configure Azure Site Recovery (ASR) Target Replication Vault', description: 'Enable continuous replication policies across secondary paired region.', priority: 'Critical', estimatedDays: 6 },
+                    { title: 'Execute Automated Regional DNS Traffic Routing Cutover Test', description: 'Verify Azure Front Door / Traffic Manager failover health probes.', priority: 'High', estimatedDays: 3 },
+                    { title: 'Perform Data Integrity & Transaction Log Audit', description: 'Audit database replay consistency after simulated failback.', priority: 'Medium', estimatedDays: 5 }
+                ];
+            }
+            else if (clean.includes('security') || clean.includes('zero trust') || clean.includes('audit')) {
+                suggestions = [
+                    { title: 'Conduct Microsoft Defender for Cloud Vulnerability Scan', description: 'Inspect container registries and virtual machine posture findings.', priority: 'Critical', estimatedDays: 3 },
+                    { title: 'Implement Conditional Access Policies with Phishing-Resistant MFA', description: 'Enforce FIDO2 and Windows Hello for Business across admin roles.', priority: 'High', estimatedDays: 5 },
+                    { title: 'Review Privileged Identity Management (PIM) Just-in-Time Approvals', description: 'Restrict standing Global Admin role assignments to time-bound activations.', priority: 'High', estimatedDays: 4 },
+                    { title: 'Publish ISO 27001 Compliance Attestation Dossier', description: 'Compile evidence artifacts for external third-party penetration testers.', priority: 'Medium', estimatedDays: 7 }
+                ];
+            }
+            else {
+                suggestions = [
+                    { title: "Architecture Design Specification for ".concat(promptGoal), description: 'Produce technical system requirements and sequence flow diagrams.', priority: 'High', estimatedDays: 5 },
+                    { title: "Core API & Database Schema Implementation", description: 'Construct REST endpoints, database tables, and unit test suites.', priority: 'High', estimatedDays: 8 },
+                    { title: "End-to-End Integration Testing & Load Benchmarking", description: 'Simulate concurrent user traffic and measure response percentiles.', priority: 'Medium', estimatedDays: 4 },
+                    { title: "Client UAT Demonstration & Production Handover", description: 'Demonstrate completed acceptance criteria to executive sponsors.', priority: 'Medium', estimatedDays: 3 }
+                ];
+            }
+            setGeneratedTasks(suggestions);
+            setGenerating(false);
+            showToast('Copilot generated 4 structured work items!', 'success');
+        }, 900);
+    };
+    var handleAddAITasksToProject = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var project, service, _i, generatedTasks_1, t;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (generatedTasks.length === 0 || !selectedProjectId)
+                        return [2 /*return*/];
+                    project = projects.find(function (p) { return p.id === selectedProjectId; });
+                    service = _services__WEBPACK_IMPORTED_MODULE_2__[/* TaskService */ "g"].getInstance();
+                    _i = 0, generatedTasks_1 = generatedTasks;
+                    _a.label = 1;
+                case 1:
+                    if (!(_i < generatedTasks_1.length)) return [3 /*break*/, 4];
+                    t = generatedTasks_1[_i];
+                    return [4 /*yield*/, service.createTask({
+                            taskId: "AI-".concat(Math.floor(100 + Math.random() * 900)),
+                            projectId: selectedProjectId,
+                            projectTitle: (project === null || project === void 0 ? void 0 : project.title) || '',
+                            title: t.title,
+                            description: t.description,
+                            assignedTo: (project === null || project === void 0 ? void 0 : project.projectManager) || null,
+                            startDate: new Date().toISOString(),
+                            dueDate: new Date(Date.now() + t.estimatedDays * 86400000).toISOString(),
+                            priority: t.priority,
+                            status: 'To Do',
+                            completionPercentage: 0
+                        }, config)];
+                case 2:
+                    _a.sent();
+                    _a.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4:
+                    showToast("Added ".concat(generatedTasks.length, " AI-generated tasks to '").concat(project === null || project === void 0 ? void 0 : project.title, "' in SharePoint!"), 'success');
+                    setGeneratedTasks([]);
+                    triggerRefresh();
+                    return [2 /*return*/];
+            }
+        });
+    }); };
+    var handleSendChat = function () {
+        if (!chatInput.trim())
+            return;
+        var q = chatInput.trim();
+        var time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        setChatHistory(function (prev) { return __spreadArray(__spreadArray([], prev, true), [{ sender: 'user', text: q, time: time }], false); });
+        setChatInput('');
+        setTimeout(function () {
+            var _a, _b;
+            var reply = '';
+            var lower = q.toLowerCase();
+            if (lower.includes('overdue')) {
+                var overdue = tasks.filter(function (t) { return t.status !== 'Completed' && new Date(t.dueDate).getTime() < Date.now(); });
+                reply = "There is currently ".concat(overdue.length, " overdue task: \"").concat(((_a = overdue[0]) === null || _a === void 0 ? void 0 : _a.title) || 'None', "\" for project \"").concat(((_b = overdue[0]) === null || _b === void 0 ? void 0 : _b.projectTitle) || 'N/A', "\". Immediate escalation recommended.");
+            }
+            else if (lower.includes('budget') || lower.includes('cost')) {
+                reply = "Portfolio budget summary: Total allocated $".concat(projects.reduce(function (a, b) { return a + b.budget; }, 0).toLocaleString(), " across ").concat(projects.length, " projects. Project \"Global Supply Chain Analytics\" is running close to its $280,000 threshold ($260,000 spent).");
+            }
+            else if (lower.includes('health') || lower.includes('status')) {
+                reply = "Overall portfolio health is rated at 87% (HEALTHY). 3 projects are in Active delivery, 1 is Completed (Woodgrove Compliance), and 1 has minor schedule delay (Fabrikam Supply Chain).";
+            }
+            else {
+                reply = "Based on your SharePoint portfolio telemetry, all 5 projects are indexed. You have 7 total tasks, with 84% average team utilization. Would you like me to generate a mitigation plan or break down a new objective?";
+            }
+            setChatHistory(function (prev) { return __spreadArray(__spreadArray([], prev, true), [
+                {
+                    sender: 'copilot',
+                    text: reply,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }
+            ], false); });
+        }, 600);
+    };
+    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '32px' } },
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '14px',
+                padding: '20px 24px',
+                backgroundColor: themeStyles.bgCard,
+                border: "1px solid ".concat(themeStyles.border),
+                borderRadius: '12px'
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', alignItems: 'center', gap: '12px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '10px',
+                        background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#fff',
+                        fontSize: '22px',
+                        boxShadow: '0 4px 16px rgba(139, 92, 246, 0.4)'
+                    } }, "\u2728"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h2", { style: { margin: 0, fontSize: '18px', fontWeight: 700, color: themeStyles.textPrimary } }, "AI Project Copilot & Delivery Intelligence"),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '13px', color: themeStyles.textSecondary, marginTop: '2px' } }, "Autonomous risk identification, intelligent Work Breakdown Structure (WBS) generation, and portfolio health monitoring."))),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', gap: '8px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                        padding: '6px 14px',
+                        borderRadius: '8px',
+                        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                        color: '#a78bfa',
+                        fontWeight: 700,
+                        fontSize: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                    } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#a78bfa' } }),
+                    "Azure OpenAI Active"))),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+                gap: '24px'
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                    padding: '24px',
+                    backgroundColor: themeStyles.bgCard,
+                    border: "1px solid ".concat(themeStyles.border),
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px'
+                } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h3", { style: { margin: 0, fontSize: '16px', fontWeight: 700, color: themeStyles.textPrimary } }, "AI Work Breakdown Structure (WBS) Generator"),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '11px', color: themeStyles.accentBlue, fontWeight: 600 } }, "Auto-Schedules to SharePoint")),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '13px', color: themeStyles.textSecondary } }, "Enter a high-level deliverable goal. Copilot breaks it down into sequential enterprise work items with estimated durations and priorities."),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_3__[/* Dropdown */ "a"], { label: "Target Enterprise Project", selectedKey: selectedProjectId, options: projects.map(function (p) { return ({ key: p.id, text: "".concat(p.projectId, ": ").concat(p.title) }); }), onChange: function (_, opt) { return opt && setSelectedProjectId(Number(opt.key)); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_4__[/* TextField */ "a"], { label: "High-Level Objective / Epic", multiline: true, rows: 2, value: promptGoal, onChange: function (_, val) { return setPromptGoal(val || ''); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', gap: '10px' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_5__[/* PrimaryButton */ "a"], { text: generating ? 'Generating with Copilot...' : 'Generate WBS Tasks', iconProps: { iconName: 'Sparkle' }, disabled: generating || !promptGoal.trim(), onClick: handleGenerateWBS, styles: { root: { backgroundColor: '#8b5cf6', borderColor: '#8b5cf6', borderRadius: '6px' } } })),
+                generatedTasks.length > 0 && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '13px', fontWeight: 700, color: themeStyles.textPrimary } },
+                            "Proposed Deliverables (",
+                            generatedTasks.length,
+                            "):"),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_5__[/* PrimaryButton */ "a"], { text: "Commit to SharePoint Tasks", iconProps: { iconName: 'Accept' }, onClick: handleAddAITasksToProject, styles: { root: { backgroundColor: themeStyles.accentGreen, borderColor: themeStyles.accentGreen, borderRadius: '6px' } } })),
+                    generatedTasks.map(function (item, idx) { return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: idx, style: {
+                            padding: '12px 14px',
+                            backgroundColor: themeStyles.bgCardHover,
+                            border: "1px solid ".concat(themeStyles.border),
+                            borderRadius: '8px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4px'
+                        } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '13px', fontWeight: 600, color: themeStyles.textPrimary } },
+                                idx + 1,
+                                ". ",
+                                item.title),
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                                    fontSize: '10.5px',
+                                    fontWeight: 700,
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    backgroundColor: item.priority === 'Critical' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                                    color: item.priority === 'Critical' ? themeStyles.accentRed : themeStyles.accentAmber
+                                } }, item.priority)),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '11.5px', color: themeStyles.textSecondary } }, item.description),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '10.5px', color: themeStyles.accentBlue, marginTop: '2px' } },
+                            "Est. Duration: ",
+                            item.estimatedDays,
+                            " business days"))); })))),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                    padding: '24px',
+                    backgroundColor: themeStyles.bgCard,
+                    border: "1px solid ".concat(themeStyles.border),
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '600px'
+                } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', paddingBottom: '10px', borderBottom: "1px solid ".concat(themeStyles.border) } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h3", { style: { margin: 0, fontSize: '16px', fontWeight: 700, color: themeStyles.textPrimary } }, "Portfolio Chat & Decision Support"),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '11px', color: themeStyles.textMuted } }, "Model: GPT-4o / Azure M365 Copilot")),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', paddingRight: '6px' } }, chatHistory.map(function (msg, i) { return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: i, style: {
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                        gap: '4px'
+                    } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                            maxWidth: '85%',
+                            padding: '12px 16px',
+                            borderRadius: msg.sender === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                            backgroundColor: msg.sender === 'user' ? themeStyles.accentBlue : themeStyles.bgCardHover,
+                            color: msg.sender === 'user' ? '#fff' : themeStyles.textPrimary,
+                            fontSize: '13px',
+                            lineHeight: 1.5,
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+                        } }, msg.text),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '10.5px', color: themeStyles.textMuted, margin: '0 4px' } },
+                        msg.sender === 'user' ? 'You' : 'Project Copilot',
+                        " \u2022 ",
+                        msg.time))); })),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '12px 0 8px 0' } }, ['Show overdue tasks', 'Check budget burn rates', 'Summarize portfolio health'].map(function (prompt, idx) { return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", { key: idx, onClick: function () { return setChatInput(prompt); }, style: {
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        backgroundColor: themeStyles.bgCardHover,
+                        border: "1px solid ".concat(themeStyles.border),
+                        color: themeStyles.textSecondary,
+                        fontSize: '11px',
+                        cursor: 'pointer'
+                    } }, prompt)); })),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', gap: '8px', alignItems: 'center' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { flex: 1 } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_4__[/* TextField */ "a"], { placeholder: "Ask Copilot about projects, budgets, or team deadlines...", value: chatInput, onChange: function (_, val) { return setChatInput(val || ''); }, onKeyDown: function (e) { return e.key === 'Enter' && handleSendChat(); } })),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_5__[/* PrimaryButton */ "a"], { text: "Ask", iconProps: { iconName: 'Send' }, onClick: handleSendChat, disabled: !chatInput.trim(), styles: { root: { backgroundColor: '#8b5cf6', borderColor: '#8b5cf6', borderRadius: '6px' } } }))))));
+};
+
 
 /***/ }),
 
@@ -46866,6 +47902,356 @@ var Checkbox = Object(_fluentui_utilities__WEBPACK_IMPORTED_MODULE_0__[/* styled
 
 /***/ }),
 
+/***/ "QG8/":
+/*!********************************************!*\
+  !*** ./lib/components/Risks/RiskMatrix.js ***!
+  \********************************************/
+/*! exports provided: RiskMatrix */
+/*! exports used: RiskMatrix */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return RiskMatrix; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "cDcd");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _context_AppContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../context/AppContext */ "h4Z2");
+/* harmony import */ var _services__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../services */ "vB0i");
+/* harmony import */ var _services_MockData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../services/MockData */ "pZvf");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @fluentui/react */ "JLNM");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @fluentui/react */ "KYv7");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @fluentui/react */ "ANYR");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @fluentui/react */ "+onJ");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @fluentui/react */ "AR7i");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @fluentui/react */ "IvkW");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+
+
+
+
+
+var RiskMatrix = function () {
+    var _a = Object(_context_AppContext__WEBPACK_IMPORTED_MODULE_1__[/* useApp */ "b"])(), config = _a.config, themeStyles = _a.themeStyles, showToast = _a.showToast, refreshTrigger = _a.refreshTrigger;
+    var _b = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(true), loading = _b[0], setLoading = _b[1];
+    var _c = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(__spreadArray([], _services_MockData__WEBPACK_IMPORTED_MODULE_3__[/* INITIAL_RISKS */ "g"], true)), risks = _c[0], setRisks = _c[1];
+    var _d = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), projects = _d[0], setProjects = _d[1];
+    var _e = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(null), selectedCell = _e[0], setSelectedCell = _e[1];
+    // Modal State
+    var _f = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false), isModalOpen = _f[0], setIsModalOpen = _f[1];
+    var _g = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(''), newTitle = _g[0], setNewTitle = _g[1];
+    var _h = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(''), newDesc = _h[0], setNewDesc = _h[1];
+    var _j = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(1), newProjectId = _j[0], setNewProjectId = _j[1];
+    var _k = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])('Technical'), newCategory = _k[0], setNewCategory = _k[1];
+    var _l = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(3), newProb = _l[0], setNewProb = _l[1];
+    var _m = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(3), newImp = _m[0], setNewImp = _m[1];
+    var _o = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(''), newOwner = _o[0], setNewOwner = _o[1];
+    var _p = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(''), newMitigation = _p[0], setNewMitigation = _p[1];
+    Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+        loadData();
+    }, [config, refreshTrigger]);
+    var loadData = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var pList, err_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    setLoading(true);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, 4, 5]);
+                    return [4 /*yield*/, _services__WEBPACK_IMPORTED_MODULE_2__[/* ProjectService */ "d"].getInstance().getProjects(config)];
+                case 2:
+                    pList = _a.sent();
+                    setProjects(pList);
+                    if (pList.length > 0)
+                        setNewProjectId(pList[0].id);
+                    return [3 /*break*/, 5];
+                case 3:
+                    err_1 = _a.sent();
+                    console.error('[RiskMatrix] Error loading projects:', err_1);
+                    return [3 /*break*/, 5];
+                case 4:
+                    setLoading(false);
+                    return [7 /*endfinally*/];
+                case 5: return [2 /*return*/];
+            }
+        });
+    }); };
+    var handleCreateRisk = function () {
+        if (!newTitle.trim())
+            return;
+        var project = projects.find(function (p) { return p.id === newProjectId; });
+        var newRisk = {
+            id: Date.now(),
+            projectId: newProjectId,
+            projectTitle: (project === null || project === void 0 ? void 0 : project.title) || '',
+            title: newTitle,
+            description: newDesc,
+            probability: newProb,
+            impact: newImp,
+            score: newProb * newImp,
+            status: 'Identified',
+            category: newCategory,
+            owner: newOwner || 'Unassigned',
+            mitigationPlan: newMitigation
+        };
+        setRisks(function (prev) { return __spreadArray([newRisk], prev, true); });
+        showToast("Risk '".concat(newTitle, "' logged with Score ").concat(newRisk.score, "."), 'success');
+        setIsModalOpen(false);
+        setNewTitle('');
+        setNewDesc('');
+        setNewMitigation('');
+    };
+    // Determine cell color by score
+    var getCellColor = function (prob, imp) {
+        var score = prob * imp;
+        if (score >= 15)
+            return '#ef4444'; // Red
+        if (score >= 10)
+            return '#f97316'; // Orange
+        if (score >= 6)
+            return '#f59e0b'; // Amber
+        return '#10b981'; // Green
+    };
+    var filteredRisks = selectedCell
+        ? risks.filter(function (r) { return r.probability === selectedCell.prob && r.impact === selectedCell.imp; })
+        : risks;
+    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '32px' } },
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '14px',
+                padding: '20px 24px',
+                backgroundColor: themeStyles.bgCard,
+                border: "1px solid ".concat(themeStyles.border),
+                borderRadius: '12px'
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h2", { style: { margin: 0, fontSize: '18px', fontWeight: 700, color: themeStyles.textPrimary } }, "Enterprise 5x5 Risk Heatmap Matrix & Register"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '13px', color: themeStyles.textSecondary, marginTop: '4px' } }, "Probability vs. Impact quantitative risk modeling with active mitigation tracking.")),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_4__[/* PrimaryButton */ "a"], { text: "Log New Risk", iconProps: { iconName: 'Warning12' }, onClick: function () { return setIsModalOpen(true); }, styles: { root: { backgroundColor: themeStyles.accentRed, borderColor: themeStyles.accentRed, borderRadius: '6px' } } })),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))',
+                gap: '24px'
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                    padding: '24px',
+                    backgroundColor: themeStyles.bgCard,
+                    border: "1px solid ".concat(themeStyles.border),
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h3", { style: { margin: 0, fontSize: '15px', fontWeight: 700, color: themeStyles.textPrimary } }, "Probability vs. Impact Heatmap"),
+                    selectedCell && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_5__[/* DefaultButton */ "a"], { text: "Reset Filter", onClick: function () { return setSelectedCell(null); }, styles: { root: { height: '24px', fontSize: '11px' } } }))),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', gap: '10px', alignItems: 'center' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                            writingMode: 'vertical-rl',
+                            transform: 'rotate(180deg)',
+                            textAlign: 'center',
+                            fontWeight: 700,
+                            fontSize: '11px',
+                            color: themeStyles.textMuted,
+                            letterSpacing: '2px'
+                        } }, "PROBABILITY \u2192"),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' } },
+                        [5, 4, 3, 2, 1].map(function (prob) { return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: prob, style: { display: 'flex', gap: '6px', alignItems: 'center' } },
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { width: '16px', fontSize: '11px', color: themeStyles.textMuted, textAlign: 'right' } }, prob),
+                            [1, 2, 3, 4, 5].map(function (imp) {
+                                var count = risks.filter(function (r) { return r.probability === prob && r.impact === imp; }).length;
+                                var cellColor = getCellColor(prob, imp);
+                                var isSelected = (selectedCell === null || selectedCell === void 0 ? void 0 : selectedCell.prob) === prob && (selectedCell === null || selectedCell === void 0 ? void 0 : selectedCell.imp) === imp;
+                                return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: imp, onClick: function () { return setSelectedCell({ prob: prob, imp: imp }); }, style: {
+                                        flex: 1,
+                                        height: '52px',
+                                        borderRadius: '6px',
+                                        backgroundColor: "".concat(cellColor, "22"),
+                                        border: isSelected ? "3px solid #fff" : "1px solid ".concat(cellColor, "88"),
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: 'pointer',
+                                        transition: 'transform 0.15s ease',
+                                        position: 'relative'
+                                    }, onMouseEnter: function (e) { return (e.currentTarget.style.transform = 'scale(1.05)'); }, onMouseLeave: function (e) { return (e.currentTarget.style.transform = 'scale(1)'); } },
+                                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '10px', color: themeStyles.textMuted, opacity: 0.7 } }, prob * imp),
+                                    count > 0 && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                                            backgroundColor: cellColor,
+                                            color: '#fff',
+                                            fontSize: '11px',
+                                            fontWeight: 800,
+                                            width: '20px',
+                                            height: '20px',
+                                            borderRadius: '50%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                                        } }, count))));
+                            }))); }),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', gap: '6px', marginTop: '4px', paddingLeft: '22px' } }, [1, 2, 3, 4, 5].map(function (imp) { return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: imp, style: { flex: 1, textAlign: 'center', fontSize: '11px', color: themeStyles.textMuted } }, imp)); })),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { textAlign: 'center', fontSize: '11px', fontWeight: 700, color: themeStyles.textMuted, letterSpacing: '2px', marginTop: '2px' } }, "IMPACT \u2192"))),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginTop: '10px', padding: '10px 14px', backgroundColor: themeStyles.bgCardHover, borderRadius: '8px' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { display: 'flex', alignItems: 'center', gap: '6px', color: themeStyles.textSecondary } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#10b981' } }),
+                        "Low (1\u20135)"),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { display: 'flex', alignItems: 'center', gap: '6px', color: themeStyles.textSecondary } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#f59e0b' } }),
+                        "Moderate (6\u20139)"),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { display: 'flex', alignItems: 'center', gap: '6px', color: themeStyles.textSecondary } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#f97316' } }),
+                        "High (10\u201314)"),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { display: 'flex', alignItems: 'center', gap: '6px', color: themeStyles.textSecondary } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#ef4444' } }),
+                        "Critical (15\u201325)"))),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                    padding: '24px',
+                    backgroundColor: themeStyles.bgCard,
+                    border: "1px solid ".concat(themeStyles.border),
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '14px'
+                } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h3", { style: { margin: 0, fontSize: '15px', fontWeight: 700, color: themeStyles.textPrimary } },
+                        "Risk Register (",
+                        filteredRisks.length,
+                        ")"),
+                    selectedCell && (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '12px', color: themeStyles.accentBlue } },
+                        "Prob: ",
+                        selectedCell.prob,
+                        " \u00D7 Imp: ",
+                        selectedCell.imp,
+                        " (Score: ",
+                        selectedCell.prob * selectedCell.imp,
+                        ")"))),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '420px', overflowY: 'auto' } }, filteredRisks.map(function (r) {
+                    var color = getCellColor(r.probability, r.impact);
+                    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { key: r.id, style: {
+                            padding: '14px 16px',
+                            borderRadius: '8px',
+                            backgroundColor: themeStyles.bgCardHover,
+                            borderLeft: "4px solid ".concat(color),
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '6px'
+                        } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' } },
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+                                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: { fontSize: '13px', fontWeight: 700, color: themeStyles.textPrimary } }, r.title),
+                                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '11px', color: themeStyles.accentBlue, marginTop: '2px' } },
+                                    r.projectTitle,
+                                    " \u2022 Category: ",
+                                    r.category)),
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                                    fontSize: '11px',
+                                    fontWeight: 800,
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    backgroundColor: "".concat(color, "22"),
+                                    color: color
+                                } },
+                                "SCORE: ",
+                                r.score)),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("p", { style: { margin: 0, fontSize: '12px', color: themeStyles.textSecondary } }, r.description),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '11px', color: themeStyles.textMuted, borderTop: "1px solid ".concat(themeStyles.borderLight), paddingTop: '6px', marginTop: '2px' } },
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("strong", null, "Mitigation Plan:"),
+                            " ",
+                            r.mitigationPlan)));
+                })))),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_6__[/* Modal */ "a"], { isOpen: isModalOpen, onDismiss: function () { return setIsModalOpen(false); }, styles: {
+                main: {
+                    width: '560px',
+                    backgroundColor: themeStyles.bgCard,
+                    border: "1px solid ".concat(themeStyles.border),
+                    borderRadius: '12px',
+                    overflow: 'hidden'
+                }
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '20px 24px', borderBottom: "1px solid ".concat(themeStyles.border) } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h3", { style: { margin: 0, fontSize: '17px', fontWeight: 700, color: themeStyles.textPrimary } }, "Log New Risk into Register")),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_7__[/* Dropdown */ "a"], { label: "Project", required: true, selectedKey: newProjectId, options: projects.map(function (p) { return ({ key: p.id, text: p.title }); }), onChange: function (_, opt) { return opt && setNewProjectId(Number(opt.key)); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_8__[/* TextField */ "a"], { label: "Risk Statement / Title", required: true, value: newTitle, onChange: function (_, val) { return setNewTitle(val || ''); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_8__[/* TextField */ "a"], { label: "Risk Description & Root Cause", multiline: true, rows: 2, value: newDesc, onChange: function (_, val) { return setNewDesc(val || ''); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_9__[/* Slider */ "a"], { label: "Probability (1-5): ".concat(newProb), min: 1, max: 5, value: newProb, onChange: function (val) { return setNewProb(val); } }),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_9__[/* Slider */ "a"], { label: "Impact (1-5): ".concat(newImp), min: 1, max: 5, value: newImp, onChange: function (val) { return setNewImp(val); } })),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' } },
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_7__[/* Dropdown */ "a"], { label: "Risk Category", selectedKey: newCategory, options: [
+                            { key: 'Technical', text: 'Technical' },
+                            { key: 'Schedule', text: 'Schedule' },
+                            { key: 'Budget', text: 'Budget' },
+                            { key: 'Resource', text: 'Resource' },
+                            { key: 'Security', text: 'Security' }
+                        ], onChange: function (_, opt) { return opt && setNewCategory(opt.key); } }),
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_8__[/* TextField */ "a"], { label: "Assigned Risk Owner", value: newOwner, onChange: function (_, val) { return setNewOwner(val || ''); } })),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_8__[/* TextField */ "a"], { label: "Mitigation Action Plan", multiline: true, rows: 2, placeholder: "Actions to reduce probability or impact...", value: newMitigation, onChange: function (_, val) { return setNewMitigation(val || ''); } })),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                    padding: '16px 24px',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '10px',
+                    borderTop: "1px solid ".concat(themeStyles.border),
+                    backgroundColor: themeStyles.bgCardHover
+                } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_5__[/* DefaultButton */ "a"], { text: "Cancel", onClick: function () { return setIsModalOpen(false); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_4__[/* PrimaryButton */ "a"], { text: "Save Risk", onClick: handleCreateRisk, styles: { root: { backgroundColor: themeStyles.accentRed, borderColor: themeStyles.accentRed } } })))));
+};
+
+
+/***/ }),
+
 /***/ "QJj6":
 /*!*************************************************************************************************!*\
   !*** ./node_modules/@fluentui/react/lib/components/ProgressIndicator/ProgressIndicator.base.js ***!
@@ -47099,6 +48485,23 @@ var ContextualMenuAnchor = /** @class */ (function (_super) {
 }(_ContextualMenuItemWrapper__WEBPACK_IMPORTED_MODULE_7__[/* ContextualMenuItemWrapper */ "a"]));
 
 //# sourceMappingURL=ContextualMenuAnchor.js.map
+
+/***/ }),
+
+/***/ "QVL1":
+/*!******************************************!*\
+  !*** ./lib/components/Timeline/index.js ***!
+  \******************************************/
+/*! exports provided: GanttTimeline */
+/*! exports used: GanttTimeline */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _GanttTimeline__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./GanttTimeline */ "HzNM");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _GanttTimeline__WEBPACK_IMPORTED_MODULE_0__["a"]; });
+
+
+
 
 /***/ }),
 
@@ -51099,7 +52502,7 @@ var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from
 var TeamManager = function () {
     var _a = Object(_context_AppContext__WEBPACK_IMPORTED_MODULE_1__[/* useApp */ "b"])(), config = _a.config, themeStyles = _a.themeStyles, refreshTrigger = _a.refreshTrigger, triggerRefresh = _a.triggerRefresh, showToast = _a.showToast, globalSearch = _a.globalSearch;
     var _b = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(true), loading = _b[0], setLoading = _b[1];
-    var _c = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(__spreadArray([], _services_MockData__WEBPACK_IMPORTED_MODULE_3__[/* INITIAL_TEAM_MEMBERS */ "g"], true)), teamMembers = _c[0], setTeamMembers = _c[1];
+    var _c = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(__spreadArray([], _services_MockData__WEBPACK_IMPORTED_MODULE_3__[/* INITIAL_TEAM_MEMBERS */ "i"], true)), teamMembers = _c[0], setTeamMembers = _c[1];
     var _d = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), projects = _d[0], setProjects = _d[1];
     var _e = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(''), searchQuery = _e[0], setSearchQuery = _e[1];
     var _f = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])('All'), projectFilter = _f[0], setProjectFilter = _f[1];
@@ -51320,15 +52723,25 @@ var TeamManager = function () {
 /* harmony import */ var _styles_theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../styles/theme */ "rqLe");
 /* harmony import */ var _Navigation_Sidebar__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Navigation/Sidebar */ "BT7+");
 /* harmony import */ var _Navigation_Header__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Navigation/Header */ "wxcl");
-/* harmony import */ var _Dashboard_ExecutiveDashboard__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Dashboard/ExecutiveDashboard */ "KJlr");
-/* harmony import */ var _Projects__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Projects */ "Phzi");
-/* harmony import */ var _Tasks__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tasks */ "nElR");
-/* harmony import */ var _ExcelUpload__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ExcelUpload */ "FLIO");
-/* harmony import */ var _Documents__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Documents */ "OazU");
-/* harmony import */ var _Approvals__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Approvals */ "TXHJ");
-/* harmony import */ var _Team__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Team */ "9xq1");
-/* harmony import */ var _Reports__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Reports */ "qsT5");
-/* harmony import */ var _Settings_DynamicConfig__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Settings/DynamicConfig */ "+oP8");
+/* harmony import */ var _Navigation_CommandPalette__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Navigation/CommandPalette */ "KCuG");
+/* harmony import */ var _Dashboard_ExecutiveDashboard__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Dashboard/ExecutiveDashboard */ "KJlr");
+/* harmony import */ var _Projects__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Projects */ "Phzi");
+/* harmony import */ var _Timeline__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Timeline */ "QVL1");
+/* harmony import */ var _Tasks__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Tasks */ "nElR");
+/* harmony import */ var _Risks__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Risks */ "wVKY");
+/* harmony import */ var _Financials__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Financials */ "HxDx");
+/* harmony import */ var _Copilot__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Copilot */ "L6PQ");
+/* harmony import */ var _ExcelUpload__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ExcelUpload */ "FLIO");
+/* harmony import */ var _Documents__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Documents */ "OazU");
+/* harmony import */ var _Approvals__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./Approvals */ "TXHJ");
+/* harmony import */ var _Team__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./Team */ "9xq1");
+/* harmony import */ var _Reports__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./Reports */ "qsT5");
+/* harmony import */ var _Settings_DynamicConfig__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./Settings/DynamicConfig */ "+oP8");
+
+
+
+
+
 
 
 
@@ -51349,29 +52762,37 @@ var PortalMainContent = function () {
     var renderActiveView = function () {
         switch (activeView) {
             case 'dashboard':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Dashboard_ExecutiveDashboard__WEBPACK_IMPORTED_MODULE_6__[/* ExecutiveDashboard */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Dashboard_ExecutiveDashboard__WEBPACK_IMPORTED_MODULE_7__[/* ExecutiveDashboard */ "a"], null);
             case 'projects':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Projects__WEBPACK_IMPORTED_MODULE_7__[/* ProjectList */ "b"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Projects__WEBPACK_IMPORTED_MODULE_8__[/* ProjectList */ "b"], null);
             case 'project-detail':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Projects__WEBPACK_IMPORTED_MODULE_7__[/* ProjectDetail */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Projects__WEBPACK_IMPORTED_MODULE_8__[/* ProjectDetail */ "a"], null);
+            case 'timeline':
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Timeline__WEBPACK_IMPORTED_MODULE_9__[/* GanttTimeline */ "a"], null);
             case 'tasks':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Tasks__WEBPACK_IMPORTED_MODULE_8__[/* TaskList */ "b"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Tasks__WEBPACK_IMPORTED_MODULE_10__[/* TaskList */ "b"], null);
             case 'kanban':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Tasks__WEBPACK_IMPORTED_MODULE_8__[/* KanbanBoard */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Tasks__WEBPACK_IMPORTED_MODULE_10__[/* KanbanBoard */ "a"], null);
+            case 'risks':
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Risks__WEBPACK_IMPORTED_MODULE_11__[/* RiskMatrix */ "a"], null);
+            case 'financials':
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Financials__WEBPACK_IMPORTED_MODULE_12__[/* ProjectFinancials */ "a"], null);
+            case 'copilot':
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Copilot__WEBPACK_IMPORTED_MODULE_13__[/* ProjectCopilot */ "a"], null);
             case 'excel':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_ExcelUpload__WEBPACK_IMPORTED_MODULE_9__[/* ExcelBulkUpload */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_ExcelUpload__WEBPACK_IMPORTED_MODULE_14__[/* ExcelBulkUpload */ "a"], null);
             case 'documents':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Documents__WEBPACK_IMPORTED_MODULE_10__[/* DocumentManager */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Documents__WEBPACK_IMPORTED_MODULE_15__[/* DocumentManager */ "a"], null);
             case 'approvals':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Approvals__WEBPACK_IMPORTED_MODULE_11__[/* ApprovalManager */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Approvals__WEBPACK_IMPORTED_MODULE_16__[/* ApprovalManager */ "a"], null);
             case 'team':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Team__WEBPACK_IMPORTED_MODULE_12__[/* TeamManager */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Team__WEBPACK_IMPORTED_MODULE_17__[/* TeamManager */ "a"], null);
             case 'reports':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Reports__WEBPACK_IMPORTED_MODULE_13__[/* ReportsDashboard */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Reports__WEBPACK_IMPORTED_MODULE_18__[/* ReportsDashboard */ "a"], null);
             case 'settings':
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Settings_DynamicConfig__WEBPACK_IMPORTED_MODULE_14__[/* DynamicConfig */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Settings_DynamicConfig__WEBPACK_IMPORTED_MODULE_19__[/* DynamicConfig */ "a"], null);
             default:
-                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Dashboard_ExecutiveDashboard__WEBPACK_IMPORTED_MODULE_6__[/* ExecutiveDashboard */ "a"], null);
+                return react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Dashboard_ExecutiveDashboard__WEBPACK_IMPORTED_MODULE_7__[/* ExecutiveDashboard */ "a"], null);
         }
     };
     return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
@@ -51389,7 +52810,8 @@ var PortalMainContent = function () {
                     flex: 1,
                     overflowY: 'auto',
                     padding: '24px 32px'
-                } }, renderActiveView()))));
+                } }, renderActiveView())),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_Navigation_CommandPalette__WEBPACK_IMPORTED_MODULE_6__[/* CommandPalette */ "a"], null)));
 };
 var AppContentWrapper = function () {
     var currentTheme = Object(_context_AppContext__WEBPACK_IMPORTED_MODULE_2__[/* useApp */ "b"])().currentTheme;
@@ -62059,6 +63481,292 @@ function Telemetry() {
 
 /***/ }),
 
+/***/ "nvRj":
+/*!********************************************************!*\
+  !*** ./lib/components/Financials/ProjectFinancials.js ***!
+  \********************************************************/
+/*! exports provided: ProjectFinancials */
+/*! exports used: ProjectFinancials */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ProjectFinancials; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "cDcd");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _context_AppContext__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../context/AppContext */ "h4Z2");
+/* harmony import */ var _services__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../services */ "vB0i");
+/* harmony import */ var _services_MockData__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../services/MockData */ "pZvf");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @fluentui/react */ "JLNM");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @fluentui/react */ "ANYR");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @fluentui/react */ "+onJ");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @fluentui/react */ "AR7i");
+/* harmony import */ var _fluentui_react__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @fluentui/react */ "KYv7");
+var __assign = (undefined && undefined.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+
+
+
+
+
+
+var ProjectFinancials = function () {
+    var _a = Object(_context_AppContext__WEBPACK_IMPORTED_MODULE_1__[/* useApp */ "b"])(), config = _a.config, themeStyles = _a.themeStyles, showToast = _a.showToast, refreshTrigger = _a.refreshTrigger, triggerRefresh = _a.triggerRefresh;
+    var _b = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(true), loading = _b[0], setLoading = _b[1];
+    var _c = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(__spreadArray([], _services_MockData__WEBPACK_IMPORTED_MODULE_3__[/* INITIAL_FINANCIALS */ "d"], true)), financials = _c[0], setFinancials = _c[1];
+    var _d = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])([]), projects = _d[0], setProjects = _d[1];
+    // Log Expense Modal
+    var _e = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false), isExpenseModalOpen = _e[0], setIsExpenseModalOpen = _e[1];
+    var _f = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(1), expenseProjectId = _f[0], setExpenseProjectId = _f[1];
+    var _g = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(12000), expenseAmount = _g[0], setExpenseAmount = _g[1];
+    var _h = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])('Cloud Infrastructure'), expenseCategory = _h[0], setExpenseCategory = _h[1];
+    var _j = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(''), expenseNote = _j[0], setExpenseNote = _j[1];
+    Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+        loadData();
+    }, [config, refreshTrigger]);
+    var loadData = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var pList, err_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    setLoading(true);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, 4, 5]);
+                    return [4 /*yield*/, _services__WEBPACK_IMPORTED_MODULE_2__[/* ProjectService */ "d"].getInstance().getProjects(config)];
+                case 2:
+                    pList = _a.sent();
+                    setProjects(pList);
+                    if (pList.length > 0)
+                        setExpenseProjectId(pList[0].id);
+                    return [3 /*break*/, 5];
+                case 3:
+                    err_1 = _a.sent();
+                    console.error('[ProjectFinancials] Error loading projects:', err_1);
+                    return [3 /*break*/, 5];
+                case 4:
+                    setLoading(false);
+                    return [7 /*endfinally*/];
+                case 5: return [2 /*return*/];
+            }
+        });
+    }); };
+    var handleLogExpense = function () {
+        if (expenseAmount <= 0)
+            return;
+        var project = projects.find(function (p) { return p.id === expenseProjectId; });
+        setFinancials(function (prev) {
+            return prev.map(function (f) {
+                if (f.projectId === expenseProjectId) {
+                    var newAC = f.actualCost + expenseAmount;
+                    var newCV = f.earnedValue - newAC;
+                    var newCPI = Number((f.earnedValue / (newAC || 1)).toFixed(2));
+                    return __assign(__assign({}, f), { actualCost: newAC, costVariance: newCV, cpi: newCPI });
+                }
+                return f;
+            });
+        });
+        showToast("Logged $".concat(expenseAmount.toLocaleString(), " expense against '").concat(project === null || project === void 0 ? void 0 : project.title, "'."), 'success');
+        setIsExpenseModalOpen(false);
+        setExpenseAmount(0);
+        setExpenseNote('');
+    };
+    var totalBudget = projects.reduce(function (acc, p) { return acc + p.budget; }, 0);
+    var totalActual = financials.reduce(function (acc, f) { return acc + f.actualCost; }, 0);
+    var totalEarned = financials.reduce(function (acc, f) { return acc + f.earnedValue; }, 0);
+    var portfolioCPI = (totalEarned / (totalActual || 1)).toFixed(2);
+    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '32px' } },
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '14px',
+                padding: '20px 24px',
+                backgroundColor: themeStyles.bgCard,
+                border: "1px solid ".concat(themeStyles.border),
+                borderRadius: '12px'
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", null,
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h2", { style: { margin: 0, fontSize: '18px', fontWeight: 700, color: themeStyles.textPrimary } }, "Earned Value Management (EVM) & Budget Burn-Down"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '13px', color: themeStyles.textSecondary, marginTop: '4px' } }, "Quantitative cost performance index (CPI), schedule performance index (SPI), and Estimate at Completion (EAC) forecasting.")),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_4__[/* PrimaryButton */ "a"], { text: "Log Project Expenditure", iconProps: { iconName: 'Money' }, onClick: function () { return setIsExpenseModalOpen(true); }, styles: { root: { backgroundColor: themeStyles.accentGreen, borderColor: themeStyles.accentGreen, borderRadius: '6px' } } })),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+                gap: '16px'
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: "1px solid ".concat(themeStyles.border), borderRadius: '10px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '12px', color: themeStyles.textSecondary } }, "Total Allocated Budget"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '24px', fontWeight: 800, color: themeStyles.textPrimary, marginTop: '4px' } },
+                    "$",
+                    totalBudget.toLocaleString())),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: "1px solid ".concat(themeStyles.border), borderRadius: '10px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '12px', color: themeStyles.textSecondary } }, "Actual Incurred Cost (AC)"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '24px', fontWeight: 800, color: themeStyles.accentAmber, marginTop: '4px' } },
+                    "$",
+                    totalActual.toLocaleString())),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: "1px solid ".concat(themeStyles.border), borderRadius: '10px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '12px', color: themeStyles.textSecondary } }, "Earned Value Delivered (EV)"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '24px', fontWeight: 800, color: themeStyles.accentBlue, marginTop: '4px' } },
+                    "$",
+                    totalEarned.toLocaleString())),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '16px 20px', backgroundColor: themeStyles.bgCard, border: "1px solid ".concat(themeStyles.border), borderRadius: '10px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '12px', color: Number(portfolioCPI) >= 1.0 ? themeStyles.accentGreen : themeStyles.accentRed, fontWeight: 600 } }, "Portfolio Cost Efficiency (CPI)"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '24px', fontWeight: 800, color: Number(portfolioCPI) >= 1.0 ? themeStyles.accentGreen : themeStyles.accentRed, marginTop: '4px' } },
+                    portfolioCPI,
+                    "x"),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { fontSize: '11px', color: themeStyles.textMuted } }, Number(portfolioCPI) >= 1.0 ? 'Operating under budget' : 'Cost overrun alert'))),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                padding: '24px',
+                backgroundColor: themeStyles.bgCard,
+                border: "1px solid ".concat(themeStyles.border),
+                borderRadius: '12px',
+                overflowX: 'auto'
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h3", { style: { margin: '0 0 16px 0', fontSize: '16px', fontWeight: 700, color: themeStyles.textPrimary } }, "Project-by-Project EVM Financial Variance Matrix"),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("table", { style: { width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("thead", null,
+                    react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("tr", { style: { backgroundColor: themeStyles.bgCardHover, borderBottom: "1px solid ".concat(themeStyles.border), color: themeStyles.textSecondary, fontWeight: 600 } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("th", { style: { padding: '12px 16px' } }, "Project Title"),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("th", { style: { padding: '12px 16px' } }, "Planned Value (PV)"),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("th", { style: { padding: '12px 16px' } }, "Earned Value (EV)"),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("th", { style: { padding: '12px 16px' } }, "Actual Cost (AC)"),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("th", { style: { padding: '12px 16px' } }, "Cost Variance (CV)"),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("th", { style: { padding: '12px 16px' } }, "CPI Efficiency"),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("th", { style: { padding: '12px 16px' } }, "SPI Schedule"),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("th", { style: { padding: '12px 16px' } }, "Forecasted EAC"))),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("tbody", null, financials.map(function (f) {
+                    var isCostHealthy = f.costVariance >= 0;
+                    var isScheduleHealthy = f.scheduleVariance >= 0;
+                    return (react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("tr", { key: f.projectId, style: { borderBottom: "1px solid ".concat(themeStyles.border) } },
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("td", { style: { padding: '14px 16px', fontWeight: 600, color: themeStyles.textPrimary } }, f.projectTitle),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("td", { style: { padding: '14px 16px', color: themeStyles.textSecondary } },
+                            "$",
+                            f.plannedValue.toLocaleString()),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("td", { style: { padding: '14px 16px', fontWeight: 600, color: themeStyles.accentBlue } },
+                            "$",
+                            f.earnedValue.toLocaleString()),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("td", { style: { padding: '14px 16px', color: themeStyles.textSecondary } },
+                            "$",
+                            f.actualCost.toLocaleString()),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("td", { style: { padding: '14px 16px', fontWeight: 700, color: isCostHealthy ? themeStyles.accentGreen : themeStyles.accentRed } }, isCostHealthy ? "+$".concat(f.costVariance.toLocaleString()) : "-$".concat(Math.abs(f.costVariance).toLocaleString())),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("td", { style: { padding: '14px 16px' } },
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                                    padding: '3px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    fontWeight: 700,
+                                    backgroundColor: f.cpi >= 1.0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                                    color: f.cpi >= 1.0 ? themeStyles.accentGreen : themeStyles.accentRed
+                                } },
+                                f.cpi.toFixed(2),
+                                "x")),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("td", { style: { padding: '14px 16px' } },
+                            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("span", { style: {
+                                    padding: '3px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    fontWeight: 700,
+                                    backgroundColor: f.spi >= 1.0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                                    color: f.spi >= 1.0 ? themeStyles.accentGreen : themeStyles.accentRed
+                                } },
+                                f.spi.toFixed(2),
+                                "x")),
+                        react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("td", { style: { padding: '14px 16px', fontWeight: 700, color: themeStyles.textPrimary } },
+                            "$",
+                            Math.round(f.forecastedEAC).toLocaleString())));
+                })))),
+        react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_5__[/* Modal */ "a"], { isOpen: isExpenseModalOpen, onDismiss: function () { return setIsExpenseModalOpen(false); }, styles: {
+                main: {
+                    width: '500px',
+                    backgroundColor: themeStyles.bgCard,
+                    border: "1px solid ".concat(themeStyles.border),
+                    borderRadius: '12px',
+                    overflow: 'hidden'
+                }
+            } },
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '20px 24px', borderBottom: "1px solid ".concat(themeStyles.border) } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("h3", { style: { margin: 0, fontSize: '17px', fontWeight: 700, color: themeStyles.textPrimary } }, "Log Project Expenditure")),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: { padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_6__[/* Dropdown */ "a"], { label: "Target Project", required: true, selectedKey: expenseProjectId, options: projects.map(function (p) { return ({ key: p.id, text: p.title }); }), onChange: function (_, opt) { return opt && setExpenseProjectId(Number(opt.key)); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_7__[/* TextField */ "a"], { label: "Expenditure Amount ($ USD)", type: "number", required: true, value: String(expenseAmount), onChange: function (_, val) { return setExpenseAmount(Number(val) || 0); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_6__[/* Dropdown */ "a"], { label: "Cost Category", selectedKey: expenseCategory, options: [
+                        { key: 'Labor', text: 'Labor & Engineering Hours' },
+                        { key: 'Cloud Infrastructure', text: 'Cloud Infrastructure & Azure Subscriptions' },
+                        { key: 'Software Licenses', text: 'Software Licenses & SaaS APIs' },
+                        { key: 'Consulting', text: 'External Security / Audit Consulting' },
+                        { key: 'Hardware', text: 'Hardware & Network Equipment' }
+                    ], onChange: function (_, opt) { return opt && setExpenseCategory(String(opt.key)); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_7__[/* TextField */ "a"], { label: "Invoice / PO Reference Note", placeholder: "e.g. Azure Enterprise Agreement Q1 true-up invoice #EA-8902", value: expenseNote, onChange: function (_, val) { return setExpenseNote(val || ''); } })),
+            react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("div", { style: {
+                    padding: '16px 24px',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '10px',
+                    borderTop: "1px solid ".concat(themeStyles.border),
+                    backgroundColor: themeStyles.bgCardHover
+                } },
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_8__[/* DefaultButton */ "a"], { text: "Cancel", onClick: function () { return setIsExpenseModalOpen(false); } }),
+                react__WEBPACK_IMPORTED_MODULE_0__["createElement"](_fluentui_react__WEBPACK_IMPORTED_MODULE_4__[/* PrimaryButton */ "a"], { text: "Commit Expenditure", onClick: handleLogExpense, styles: { root: { backgroundColor: themeStyles.accentGreen, borderColor: themeStyles.accentGreen } } })))));
+};
+
+
+/***/ }),
+
 /***/ "oHAt":
 /*!*****************************************************************************************!*\
   !*** ./node_modules/@fluentui/react/lib/utilities/ThemeProvider/renderThemeProvider.js ***!
@@ -63022,17 +64730,19 @@ function provideUnits(rulePairs, index) {
 /*!**********************************!*\
   !*** ./lib/services/MockData.js ***!
   \**********************************/
-/*! exports provided: INITIAL_PROJECTS, INITIAL_TASKS, INITIAL_MILESTONES, INITIAL_APPROVALS, INITIAL_DOCUMENTS, INITIAL_TEAM_MEMBERS, INITIAL_ACTIVITY_LOGS */
-/*! exports used: INITIAL_ACTIVITY_LOGS, INITIAL_APPROVALS, INITIAL_DOCUMENTS, INITIAL_MILESTONES, INITIAL_PROJECTS, INITIAL_TASKS, INITIAL_TEAM_MEMBERS */
+/*! exports provided: INITIAL_PROJECTS, INITIAL_TASKS, INITIAL_RISKS, INITIAL_FINANCIALS, INITIAL_MILESTONES, INITIAL_APPROVALS, INITIAL_DOCUMENTS, INITIAL_TEAM_MEMBERS, INITIAL_ACTIVITY_LOGS */
+/*! exports used: INITIAL_ACTIVITY_LOGS, INITIAL_APPROVALS, INITIAL_DOCUMENTS, INITIAL_FINANCIALS, INITIAL_MILESTONES, INITIAL_PROJECTS, INITIAL_RISKS, INITIAL_TASKS, INITIAL_TEAM_MEMBERS */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return INITIAL_PROJECTS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return INITIAL_TASKS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return INITIAL_MILESTONES; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return INITIAL_PROJECTS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return INITIAL_TASKS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return INITIAL_RISKS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return INITIAL_FINANCIALS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return INITIAL_MILESTONES; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return INITIAL_APPROVALS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return INITIAL_DOCUMENTS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return INITIAL_TEAM_MEMBERS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return INITIAL_TEAM_MEMBERS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return INITIAL_ACTIVITY_LOGS; });
 var INITIAL_PROJECTS = [
     {
@@ -63050,6 +64760,8 @@ var INITIAL_PROJECTS = [
         startDate: '2026-01-10T00:00:00Z',
         endDate: '2026-07-30T00:00:00Z',
         budget: 450000,
+        actualSpend: 295000,
+        healthScore: 88,
         status: 'Active',
         priority: 'Critical',
         progress: 68,
@@ -63075,6 +64787,8 @@ var INITIAL_PROJECTS = [
         startDate: '2026-02-01T00:00:00Z',
         endDate: '2026-08-15T00:00:00Z',
         budget: 320000,
+        actualSpend: 148000,
+        healthScore: 92,
         status: 'Active',
         priority: 'High',
         progress: 42,
@@ -63099,6 +64813,8 @@ var INITIAL_PROJECTS = [
         startDate: '2025-11-01T00:00:00Z',
         endDate: '2026-04-10T00:00:00Z',
         budget: 280000,
+        actualSpend: 260000,
+        healthScore: 61,
         status: 'Delayed',
         priority: 'High',
         progress: 84,
@@ -63122,6 +64838,8 @@ var INITIAL_PROJECTS = [
         startDate: '2025-08-15T00:00:00Z',
         endDate: '2026-02-28T00:00:00Z',
         budget: 195000,
+        actualSpend: 191000,
+        healthScore: 99,
         status: 'Completed',
         priority: 'Medium',
         progress: 100,
@@ -63145,6 +64863,8 @@ var INITIAL_PROJECTS = [
         startDate: '2026-03-01T00:00:00Z',
         endDate: '2026-11-30T00:00:00Z',
         budget: 520000,
+        actualSpend: 75000,
+        healthScore: 84,
         status: 'Planning',
         priority: 'Critical',
         progress: 15,
@@ -63167,7 +64887,15 @@ var INITIAL_TASKS = [
         dueDate: '2026-03-25T00:00:00Z',
         priority: 'Critical',
         status: 'In Progress',
-        completionPercentage: 75
+        completionPercentage: 75,
+        subtasks: [
+            { id: 'st-1', title: 'Provision Azure CNI overlay network', isCompleted: true },
+            { id: 'st-2', title: 'Configure cert-manager with Let\'s Encrypt', isCompleted: true },
+            { id: 'st-3', title: 'Benchmark ingress throughput under 10k RPS load', isCompleted: false }
+        ],
+        comments: [
+            { id: 'c-1', author: 'Sarah Jenkins', text: 'Load test scheduled for Thursday morning.', timestamp: '2026-03-20T10:00:00Z' }
+        ]
     },
     {
         id: 102,
@@ -63181,7 +64909,12 @@ var INITIAL_TASKS = [
         dueDate: '2026-03-30T00:00:00Z',
         priority: 'High',
         status: 'To Do',
-        completionPercentage: 20
+        completionPercentage: 20,
+        subtasks: [
+            { id: 'st-4', title: 'Draft cutover checklist with stakeholders', isCompleted: true },
+            { id: 'st-5', title: 'Configure Geo-replication secondary replica', isCompleted: false },
+            { id: 'st-6', title: 'Verify RPO < 5 seconds and RTO < 15 minutes', isCompleted: false }
+        ]
     },
     {
         id: 103,
@@ -63209,7 +64942,12 @@ var INITIAL_TASKS = [
         dueDate: '2026-04-05T00:00:00Z',
         priority: 'High',
         status: 'In Progress',
-        completionPercentage: 55
+        completionPercentage: 55,
+        subtasks: [
+            { id: 'st-7', title: 'Extract text from 450 SharePoint technical whitepapers', isCompleted: true },
+            { id: 'st-8', title: 'Generate text-embedding-3-large vectors', isCompleted: true },
+            { id: 'st-9', title: 'Implement semantic hybrid reranking with Cohere', isCompleted: false }
+        ]
     },
     {
         id: 105,
@@ -63254,120 +64992,156 @@ var INITIAL_TASKS = [
         completionPercentage: 35
     }
 ];
-var INITIAL_MILESTONES = [
+var INITIAL_RISKS = [
     {
-        id: 201,
-        projectId: 1,
-        title: 'Architecture Blueprint & Landing Zone Provisioning',
-        dueDate: '2026-02-28T00:00:00Z',
-        status: 'Completed',
-        completedDate: '2026-02-25T00:00:00Z'
-    },
-    {
-        id: 202,
-        projectId: 1,
-        title: 'Core Database Migration & Synchronization',
-        dueDate: '2026-04-15T00:00:00Z',
-        status: 'In Progress'
-    },
-    {
-        id: 203,
-        projectId: 1,
-        title: 'Production Cutover & Disaster Recovery Validation',
-        dueDate: '2026-07-15T00:00:00Z',
-        status: 'Pending'
-    },
-    {
-        id: 204,
-        projectId: 2,
-        title: 'Vector Knowledge Base Indexing Complete',
-        dueDate: '2026-04-30T00:00:00Z',
-        status: 'In Progress'
-    },
-    {
-        id: 205,
-        projectId: 3,
-        title: 'Real-time Telemetry Pipeline Integration',
-        dueDate: '2026-03-05T00:00:00Z',
-        status: 'In Progress'
-    }
-];
-var INITIAL_APPROVALS = [
-    {
-        id: 301,
-        itemType: 'Project',
-        itemId: 5,
-        itemTitle: 'NextGen Mobile Banking App Redesign - Budget Scope Change',
-        requestedBy: { id: 22, title: 'Sophia Martinez', email: 'smartinez@alpinebank.com' },
-        approver: { id: 11, title: 'Executive Committee', email: 'approvals@tenant.com' },
-        status: 'Pending',
-        submissionDate: '2026-03-18T14:30:00Z',
-        comments: 'Requesting additional $45,000 contingency allocation for third-party penetration testing.'
-    },
-    {
-        id: 302,
-        itemType: 'Task',
-        itemId: 105,
-        itemTitle: 'Design Teams Bot Adaptive Cards and Dialog Prompts',
-        requestedBy: { id: 17, title: 'James Wu', email: 'jwu@northwind.com' },
-        approver: { id: 15, title: 'David Miller', email: 'dmiller@northwind.com' },
-        status: 'Pending',
-        submissionDate: '2026-03-19T09:15:00Z',
-        comments: 'UX specifications ready for review and stakeholder approval.'
-    },
-    {
-        id: 303,
-        itemType: 'Project',
-        itemId: 4,
-        itemTitle: 'Enterprise Cyber Security Compliance Framework - Sign-off',
-        requestedBy: { id: 20, title: 'Michael Chang', email: 'mchang@woodgrove.com' },
-        approver: { id: 11, title: 'Board of Directors', email: 'board@woodgrove.com' },
-        status: 'Approved',
-        submissionDate: '2026-02-20T11:00:00Z',
-        decisionDate: '2026-02-26T16:00:00Z',
-        comments: 'Full compliance certification achieved with zero audit findings.'
-    }
-];
-var INITIAL_DOCUMENTS = [
-    {
-        id: 401,
-        name: 'Cloud-Architecture-Design-Document-v2.pdf',
-        title: 'Cloud Architecture Design Document v2',
-        serverRelativeUrl: '/sites/projects/ProjectDocuments/Cloud-Architecture-Design-Document-v2.pdf',
-        fileSize: 3450000,
-        modified: '2026-03-15T10:20:00Z',
-        author: 'Sarah Jenkins',
+        id: 701,
         projectId: 1,
         projectTitle: 'Cloud Core Infrastructure Modernization',
-        category: 'Architecture',
-        versionLabel: '2.1'
+        title: 'Cross-Region Latency Exceeding SLA During Peak Load',
+        description: 'Replication sync between Azure East US and West Europe may breach the 5-second database SLA.',
+        probability: 4,
+        impact: 4,
+        score: 16,
+        status: 'Mitigating',
+        category: 'Technical',
+        owner: 'Sarah Jenkins',
+        mitigationPlan: 'Provision ExpressRoute circuits with Azure FastPath and deploy local Redis caching layer.'
     },
     {
-        id: 402,
-        name: 'RAG-AI-Prompt-Engineering-Guidelines.docx',
-        title: 'RAG AI Prompt Engineering & Compliance Guidelines',
-        serverRelativeUrl: '/sites/projects/ProjectDocuments/RAG-AI-Prompt-Engineering-Guidelines.docx',
-        fileSize: 1240000,
-        modified: '2026-03-18T14:45:00Z',
-        author: 'Elena Rostova',
+        id: 702,
         projectId: 2,
         projectTitle: 'Customer Experience AI Portal',
-        category: 'Design',
-        versionLabel: '1.4'
+        title: 'LLM Hallucinations on Medical Terminology Queries',
+        description: 'Generative AI model may provide non-compliant responses to patient health inquiries.',
+        probability: 3,
+        impact: 5,
+        score: 15,
+        status: 'Mitigating',
+        category: 'Security',
+        owner: 'David Miller',
+        mitigationPlan: 'Enforce strict temperature 0.0 with vector similarity cutoff threshold and physician verification gate.'
     },
     {
-        id: 403,
-        name: 'Supply-Chain-Telemetry-SLA-Agreement.pdf',
-        title: 'Supply Chain Telemetry SLA & Operational Contract',
-        serverRelativeUrl: '/sites/projects/ProjectDocuments/Supply-Chain-Telemetry-SLA-Agreement.pdf',
-        fileSize: 890000,
-        modified: '2026-02-28T09:10:00Z',
-        author: 'Rachel Green',
+        id: 703,
         projectId: 3,
         projectTitle: 'Global Supply Chain Analytics Suite',
-        category: 'Contract',
-        versionLabel: '1.0'
+        title: 'Customs API Rate Limiting by Foreign Logistics Portals',
+        description: 'Third-party port authorities throttle container tracking requests during end-of-quarter shipping surges.',
+        probability: 5,
+        impact: 3,
+        score: 15,
+        status: 'Analyzing',
+        category: 'Technical',
+        owner: 'Rachel Green',
+        mitigationPlan: 'Implement exponential backoff caching proxy and bulk webhook ingestion pipeline.'
+    },
+    {
+        id: 704,
+        projectId: 5,
+        projectTitle: 'NextGen Mobile Banking App Redesign',
+        title: 'Delays in Apple App Store Cryptography Compliance Review',
+        description: 'Proprietary biometric encryption modules may trigger extended Apple security audit.',
+        probability: 2,
+        impact: 4,
+        score: 8,
+        status: 'Identified',
+        category: 'Schedule',
+        owner: 'Sophia Martinez',
+        mitigationPlan: 'Submit compliance documentation 6 weeks prior to public release date with test credentials.'
+    },
+    {
+        id: 705,
+        projectId: 1,
+        projectTitle: 'Cloud Core Infrastructure Modernization',
+        title: 'Budget Overrun on Premium SSD v2 Disk IOPS Scaling',
+        description: 'High-throughput test database provisioned excess provisioned IOPS without auto-scaling.',
+        probability: 2,
+        impact: 2,
+        score: 4,
+        status: 'Closed',
+        category: 'Budget',
+        owner: 'Marcus Lee',
+        mitigationPlan: 'Automated Azure Cost Alerts configured at 75% threshold with automated runbook de-allocation.'
     }
+];
+var INITIAL_FINANCIALS = [
+    {
+        projectId: 1,
+        projectTitle: 'Cloud Core Infrastructure Modernization',
+        plannedValue: 306000,
+        earnedValue: 306000,
+        actualCost: 295000,
+        costVariance: 11000,
+        scheduleVariance: 0,
+        cpi: 1.04,
+        spi: 1.00,
+        forecastedEAC: 432692
+    },
+    {
+        projectId: 2,
+        projectTitle: 'Customer Experience AI Portal',
+        plannedValue: 160000,
+        earnedValue: 134400,
+        actualCost: 148000,
+        costVariance: -13600,
+        scheduleVariance: -25600,
+        cpi: 0.91,
+        spi: 0.84,
+        forecastedEAC: 351648
+    },
+    {
+        projectId: 3,
+        projectTitle: 'Global Supply Chain Analytics Suite',
+        plannedValue: 280000,
+        earnedValue: 235200,
+        actualCost: 260000,
+        costVariance: -24800,
+        scheduleVariance: -44800,
+        cpi: 0.90,
+        spi: 0.84,
+        forecastedEAC: 311111
+    },
+    {
+        projectId: 4,
+        projectTitle: 'Enterprise Cyber Security Compliance Framework',
+        plannedValue: 195000,
+        earnedValue: 195000,
+        actualCost: 191000,
+        costVariance: 4000,
+        scheduleVariance: 0,
+        cpi: 1.02,
+        spi: 1.00,
+        forecastedEAC: 191000
+    },
+    {
+        projectId: 5,
+        projectTitle: 'NextGen Mobile Banking App Redesign',
+        plannedValue: 78000,
+        earnedValue: 78000,
+        actualCost: 75000,
+        costVariance: 3000,
+        scheduleVariance: 0,
+        cpi: 1.04,
+        spi: 1.00,
+        forecastedEAC: 500000
+    }
+];
+var INITIAL_MILESTONES = [
+    { id: 201, projectId: 1, title: 'Architecture Blueprint & Landing Zone Provisioning', dueDate: '2026-02-28T00:00:00Z', status: 'Completed', completedDate: '2026-02-25T00:00:00Z' },
+    { id: 202, projectId: 1, title: 'Core Database Migration & Synchronization', dueDate: '2026-04-15T00:00:00Z', status: 'In Progress' },
+    { id: 203, projectId: 1, title: 'Production Cutover & Disaster Recovery Validation', dueDate: '2026-07-15T00:00:00Z', status: 'Pending' },
+    { id: 204, projectId: 2, title: 'Vector Knowledge Base Indexing Complete', dueDate: '2026-04-30T00:00:00Z', status: 'In Progress' },
+    { id: 205, projectId: 3, title: 'Real-time Telemetry Pipeline Integration', dueDate: '2026-03-05T00:00:00Z', status: 'In Progress' }
+];
+var INITIAL_APPROVALS = [
+    { id: 301, itemType: 'Project', itemId: 5, itemTitle: 'NextGen Mobile Banking App Redesign - Budget Scope Change', requestedBy: { id: 22, title: 'Sophia Martinez', email: 'smartinez@alpinebank.com' }, approver: { id: 11, title: 'Executive Committee', email: 'approvals@tenant.com' }, status: 'Pending', submissionDate: '2026-03-18T14:30:00Z', comments: 'Requesting additional $45,000 contingency allocation for third-party penetration testing.' },
+    { id: 302, itemType: 'Task', itemId: 105, itemTitle: 'Design Teams Bot Adaptive Cards and Dialog Prompts', requestedBy: { id: 17, title: 'James Wu', email: 'jwu@northwind.com' }, approver: { id: 15, title: 'David Miller', email: 'dmiller@northwind.com' }, status: 'Pending', submissionDate: '2026-03-19T09:15:00Z', comments: 'UX specifications ready for review and stakeholder approval.' },
+    { id: 303, itemType: 'Project', itemId: 4, itemTitle: 'Enterprise Cyber Security Compliance Framework - Sign-off', requestedBy: { id: 20, title: 'Michael Chang', email: 'mchang@woodgrove.com' }, approver: { id: 11, title: 'Board of Directors', email: 'board@woodgrove.com' }, status: 'Approved', submissionDate: '2026-02-20T11:00:00Z', decisionDate: '2026-02-26T16:00:00Z', comments: 'Full compliance certification achieved with zero audit findings.' }
+];
+var INITIAL_DOCUMENTS = [
+    { id: 401, name: 'Cloud-Architecture-Design-Document-v2.pdf', title: 'Cloud Architecture Design Document v2', serverRelativeUrl: '/sites/projects/ProjectDocuments/Cloud-Architecture-Design-Document-v2.pdf', fileSize: 3450000, modified: '2026-03-15T10:20:00Z', author: 'Sarah Jenkins', projectId: 1, projectTitle: 'Cloud Core Infrastructure Modernization', category: 'Architecture', versionLabel: '2.1' },
+    { id: 402, name: 'RAG-AI-Prompt-Engineering-Guidelines.docx', title: 'RAG AI Prompt Engineering & Compliance Guidelines', serverRelativeUrl: '/sites/projects/ProjectDocuments/RAG-AI-Prompt-Engineering-Guidelines.docx', fileSize: 1240000, modified: '2026-03-18T14:45:00Z', author: 'Elena Rostova', projectId: 2, projectTitle: 'Customer Experience AI Portal', category: 'Design', versionLabel: '1.4' },
+    { id: 403, name: 'Supply-Chain-Telemetry-SLA-Agreement.pdf', title: 'Supply Chain Telemetry SLA & Operational Contract', serverRelativeUrl: '/sites/projects/ProjectDocuments/Supply-Chain-Telemetry-SLA-Agreement.pdf', fileSize: 890000, modified: '2026-02-28T09:10:00Z', author: 'Rachel Green', projectId: 3, projectTitle: 'Global Supply Chain Analytics Suite', category: 'Contract', versionLabel: '1.0' }
 ];
 var INITIAL_TEAM_MEMBERS = [
     { id: 501, projectId: 1, user: { id: 11, title: 'Sarah Jenkins', email: 'sjenkins@contoso.com' }, role: 'Project Manager', allocationPercentage: 100, assignedDate: '2026-01-10T00:00:00Z' },
@@ -67044,8 +68818,8 @@ var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from
 
 var ProjectService = /** @class */ (function () {
     function ProjectService() {
-        this.memoryProjects = __spreadArray([], _MockData__WEBPACK_IMPORTED_MODULE_1__[/* INITIAL_PROJECTS */ "e"], true);
-        this.memoryMilestones = __spreadArray([], _MockData__WEBPACK_IMPORTED_MODULE_1__[/* INITIAL_MILESTONES */ "d"], true);
+        this.memoryProjects = __spreadArray([], _MockData__WEBPACK_IMPORTED_MODULE_1__[/* INITIAL_PROJECTS */ "f"], true);
+        this.memoryMilestones = __spreadArray([], _MockData__WEBPACK_IMPORTED_MODULE_1__[/* INITIAL_MILESTONES */ "e"], true);
         this.memoryLogs = __spreadArray([], _MockData__WEBPACK_IMPORTED_MODULE_1__[/* INITIAL_ACTIVITY_LOGS */ "a"], true);
     }
     ProjectService.getInstance = function () {
@@ -68268,7 +70042,7 @@ function mergeCustomizations(props, parentContext) {
 /*!*******************************!*\
   !*** ./lib/services/index.js ***!
   \*******************************/
-/*! exports provided: SharePointService, ProjectService, TaskService, DocumentService, ApprovalService, ExcelService, ReportingService, INITIAL_PROJECTS, INITIAL_TASKS, INITIAL_MILESTONES, INITIAL_APPROVALS, INITIAL_DOCUMENTS, INITIAL_TEAM_MEMBERS, INITIAL_ACTIVITY_LOGS */
+/*! exports provided: SharePointService, ProjectService, TaskService, DocumentService, ApprovalService, ExcelService, ReportingService, INITIAL_PROJECTS, INITIAL_TASKS, INITIAL_RISKS, INITIAL_FINANCIALS, INITIAL_MILESTONES, INITIAL_APPROVALS, INITIAL_DOCUMENTS, INITIAL_TEAM_MEMBERS, INITIAL_ACTIVITY_LOGS */
 /*! exports used: ApprovalService, DocumentService, ExcelService, ProjectService, ReportingService, SharePointService, TaskService */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -68749,6 +70523,23 @@ var DocumentService = /** @class */ (function () {
 
 /***/ }),
 
+/***/ "wVKY":
+/*!***************************************!*\
+  !*** ./lib/components/Risks/index.js ***!
+  \***************************************/
+/*! exports provided: RiskMatrix */
+/*! exports used: RiskMatrix */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var _RiskMatrix__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./RiskMatrix */ "QG8/");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "a", function() { return _RiskMatrix__WEBPACK_IMPORTED_MODULE_0__["a"]; });
+
+
+
+
+/***/ }),
+
 /***/ "wVz3":
 /*!**************************************************************!*\
   !*** ./node_modules/@fluentui/react-hooks/lib/useUnmount.js ***!
@@ -69011,8 +70802,12 @@ var Header = function () {
             case 'dashboard': return 'Executive Project Dashboard';
             case 'projects': return 'Project Portfolio Management';
             case 'project-detail': return 'Project Details & Milestones';
+            case 'timeline': return 'Interactive Gantt Schedule & Roadmap';
             case 'tasks': return 'Enterprise Task Management';
             case 'kanban': return 'Interactive Kanban Workflow';
+            case 'risks': return '5x5 Quantitative Risk Heatmap Matrix';
+            case 'financials': return 'EVM Financials & Budget Burn-Down';
+            case 'copilot': return 'AI Project Copilot & Delivery Intelligence';
             case 'excel': return 'Excel Bulk Import & Validation';
             case 'documents': return 'Document Management Library';
             case 'approvals': return 'Workflow Approval Center';
